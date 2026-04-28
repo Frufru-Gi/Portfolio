@@ -1,0 +1,17 @@
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 800px;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+  color: #1a1a1a;
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  font-size: 1.25rem;
+  color: #666;
+}
