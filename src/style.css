@@ -1,17 +1,777 @@
+/* =========================================================
+   Giulia Frumento — Portfolio
+   Visual system: editorial, monochrome, restrained.
+   ========================================================= */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* Color — light */
+  --bg: #faf8f5;
+  --surface: #f1ede6;
+  --ink: #111111;
+  --ink-muted: #6b6b6b;
+  --line: rgba(17, 17, 17, 0.08);
+  --accent: #d2492a;
+
+  /* Type scale (1.25 — Major Third) */
+  --fs-xs: 0.8125rem;   /* 13px */
+  --fs-sm: 0.9375rem;   /* 15px */
+  --fs-md: 1.0625rem;   /* 17px */
+  --fs-lg: 1.375rem;    /* 22px */
+  --fs-xl: 1.75rem;     /* 28px */
+  --fs-2xl: 2.25rem;    /* 36px */
+  --fs-display: clamp(2.5rem, 5.5vw + 1rem, 4.75rem);
+
+  /* Spacing — 8pt grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  /* Layout */
+  --container: 1080px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-rise: cubic-bezier(0.77, 0, 0.43, 0.99);
+  --dur-fast: 160ms;
+  --dur-med: 280ms;
+  --dur-rise: 700ms;
+
+  /* Type stack */
+  --font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --font-serif:
+    "Iowan Old Style", "Apple Garamond", Baskerville, "Times New Roman",
+    "Droid Serif", Times, "Source Serif Pro", serif;
+
+  /* Menu (always dark, regardless of theme) */
+  --menu-bg: #131211;
+  --menu-fg: #ededeb;
+  --menu-fg-muted: #8a8884;
+
+  /* Header layout */
+  --header-h: 72px;
+  --header-pad: var(--space-6);
+  --dot-size: 20px;
+  --dot-hit: 44px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0d0c;
+    --surface: #1a1816;
+    --ink: #ededeb;
+    --ink-muted: #8a8884;
+    --line: rgba(255, 255, 255, 0.08);
+    --accent: #e7724f;
+  }
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
-  font-family: system-ui, sans-serif;
-  max-width: 800px;
-  margin: 4rem auto;
-  padding: 0 1.5rem;
-  color: #1a1a1a;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";
 }
 
-h1 {
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
+img,
+svg {
+  display: block;
+  max-width: 100%;
 }
 
+h1,
+h2,
+h3,
 p {
-  font-size: 1.25rem;
-  color: #666;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- Layout container ---------- */
+.hero,
+.work,
+.about,
+.site-footer {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .hero,
+  .work,
+  .about,
+  .site-footer {
+    padding-inline: var(--space-12);
+  }
+}
+
+/* Reserve space for header (which is absolute, scrolls with the page) */
+body {
+  padding-top: var(--header-h);
+}
+
+/* ---------- Header (absolute — scrolls away with the page) ----------
+   Only the dot stays fixed on top of content during scroll. The logo
+   lives inside the absolute header so it scrolls out of view naturally,
+   and it's drawn beneath the saracinesca overlay (which has z-index:50),
+   so it's also hidden when the menu opens.
+
+   IMPORTANT: do NOT set a z-index on .site-header — the dot is a
+   position:fixed descendant with z-index:70, and giving the header its
+   own stacking context would trap the dot below the saracinesca. */
+.site-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-h);
+  padding-inline: var(--header-pad);
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .site-header {
+    padding-inline: var(--space-12);
+  }
+}
+
+.logo,
+.menu-toggle {
+  pointer-events: auto;
+}
+
+.logo {
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.logo:hover {
+  color: var(--accent);
+}
+
+/* "Menu" label — fixed in the top-right.
+   The button itself is always present (so it sits above the saracinesca
+   on z-index) but the visible text inside is clipped by overflow:hidden
+   and uses the same conveyor-belt rise as the menu items. */
+.menu-label {
+  position: fixed;
+  top: 0;
+  right: var(--header-pad);
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--menu-fg-muted);
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  pointer-events: none;
+  z-index: 60;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.menu-label:hover {
+  color: var(--menu-fg);
+}
+
+/* The text itself stays put. A clip-path masks it: hidden = top fully
+   inset (visible region collapsed at the bottom), open = no clip. */
+.menu-label-text {
+  display: block;
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path var(--dur-rise) var(--ease-rise);
+  will-change: clip-path;
+}
+
+@media (min-width: 768px) {
+  .menu-label {
+    right: var(--space-12);
+  }
+}
+
+/* The toggle is the dot — always fixed, slides between sides.
+   The dot is centered inside a 44x44 hit area; the button is offset so
+   the *visible dot* (not the hit area) sits flush at --header-pad. */
+.menu-toggle {
+  position: fixed;
+  top: calc((var(--header-h) - var(--dot-hit)) / 2);
+  right: calc(var(--header-pad) - (var(--dot-hit) - var(--dot-size)) / 2);
+  width: var(--dot-hit);
+  height: var(--dot-hit);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 70;
+  transition:
+    transform var(--dur-rise) var(--ease-rise),
+    background-color var(--dur-med) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 768px) {
+  .menu-toggle {
+    right: calc(var(--space-12) - (var(--dot-hit) - var(--dot-size)) / 2);
+  }
+}
+
+.menu-toggle-dot {
+  display: block;
+  width: var(--dot-size);
+  height: var(--dot-size);
+  border-radius: 999px;
+  background: var(--ink);
+  transition:
+    background-color var(--dur-med) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.menu-toggle:hover .menu-toggle-dot {
+  transform: scale(1.15);
+}
+
+/* While the dot is sliding between sides, freeze hover so "Back"
+   doesn't flash if the cursor happened to be over the dot at click. */
+body.is-menu-animating .menu-toggle {
+  pointer-events: none;
+}
+
+/* "Back" label — only visible when menu is open AND hovering the dot */
+.menu-toggle-text {
+  position: absolute;
+  left: calc(50% + var(--dot-size) / 2 + var(--space-3));
+  top: 50%;
+  transform: translate(-4px, -50%);
+  font-size: var(--fs-sm);
+  color: var(--menu-fg-muted);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+
+/* ---------- Site Menu (overlay) ----------
+   Animation pattern from weareink.co.uk: each link sits inside an
+   overflow:hidden wrapper and slides up from translateY(110%) → 0 with
+   a custom slow-fast-slow easing. No fade, no stagger — just a clean
+   editorial type-rise. */
+.site-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  max-height: 0;
+  overflow: hidden;
+  z-index: 50;
+  background: var(--menu-bg);
+  color: var(--menu-fg);
+  pointer-events: none;
+  transition: max-height var(--dur-rise) var(--ease-rise);
+}
+
+/* Right-aligned nav, vertically centered IN THE VIEWPORT.
+   Critical: this is position:fixed (not absolute) so it does NOT
+   reposition itself as the saracinesca's max-height animates. Items
+   stay perfectly still while the clip-mask reveals/covers the text. */
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  top: 50%;
+  right: var(--header-pad);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+  z-index: 55;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .menu-list {
+    right: var(--space-12);
+  }
+}
+
+body[data-menu="open"] .menu-list {
+  pointer-events: auto;
+}
+
+.menu-list a {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 6vw + 0.5rem, 4.5rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--menu-fg);
+  /* Items stay perfectly still. The text is unveiled by a clip-mask:
+     - closed: top fully inset → visible strip is 0-height at bottom (hidden)
+     - open:   no inset → fully revealed
+     - closing: bottom fully inset → top consumed first, then downward
+     The mask travels bottom → top on open, top → bottom on close. */
+  clip-path: inset(100% 0 0 0);
+  transition:
+    clip-path var(--dur-rise) var(--ease-rise),
+    color var(--dur-fast) var(--ease-out);
+  will-change: clip-path;
+}
+
+.menu-list a:hover {
+  color: var(--menu-fg-muted);
+}
+
+/* Socials anchored bottom-right of the VIEWPORT (same reasoning as
+   .menu-list — keep them perfectly still during the saracinesca anim). */
+.menu-social {
+  position: fixed;
+  right: var(--header-pad);
+  bottom: var(--space-12);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--space-6);
+  font-size: var(--fs-sm);
+  color: var(--menu-fg-muted);
+  z-index: 55;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .menu-social {
+    right: var(--space-12);
+  }
+}
+
+body[data-menu="open"] .menu-social {
+  pointer-events: auto;
+}
+
+.menu-social a {
+  display: inline-block;
+  color: var(--menu-fg-muted);
+  clip-path: inset(100% 0 0 0);
+  transition:
+    clip-path var(--dur-rise) var(--ease-rise),
+    color var(--dur-fast) var(--ease-out);
+  will-change: clip-path;
+}
+
+.menu-social a:hover {
+  color: var(--menu-fg);
+}
+
+/* Copyright — bottom-left mirror of .menu-social. Same type but a
+   fainter color so it sits visually behind the LinkedIn link, mirroring
+   the relative contrast between active links and muted footnote text on
+   light backgrounds (e.g. an inactive "© ... All rights reserved." vs
+   an active "Twitter"). Color is blended toward the menu background to
+   stay readable but recede. */
+.menu-copyright {
+  position: fixed;
+  left: var(--header-pad);
+  bottom: var(--space-12);
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: color-mix(in oklab, var(--menu-fg-muted) 35%, var(--menu-bg));
+  z-index: 55;
+  pointer-events: none;
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path var(--dur-rise) var(--ease-rise);
+  will-change: clip-path;
+}
+
+@media (min-width: 768px) {
+  .menu-copyright {
+    left: var(--space-12);
+  }
+}
+
+/* Mobile: stack the bottom row vertically.
+   Side-by-side balance only works when the viewport is wide enough; on
+   narrow screens the copyright would either overflow or collide with
+   LinkedIn. Stacking is the standard editorial fallback. */
+@media (max-width: 767px) {
+  .menu-copyright {
+    /* Constrain to viewport-padding box so the line wraps cleanly
+       instead of running under (where LinkedIn used to sit). */
+    right: var(--header-pad);
+  }
+
+  .menu-social {
+    /* Move LinkedIn from bottom-right to bottom-left, sitting above
+       the copyright with a comfortable gap that's safe even when the
+       copyright wraps to two lines on very small screens. */
+    right: auto;
+    left: var(--header-pad);
+    bottom: calc(var(--space-12) + 3.5em);
+  }
+}
+
+/* ---------- Menu states ----------
+   Three-state machine driven by data-menu on <body>. Items never
+   physically move — only their clip-mask animates:
+   - "closed"  → inset(100% 0 0 0): top fully inset. Hidden.
+   - "open"    → inset(0): no inset. Fully visible.
+   - "closing" → inset(0 0 100% 0): bottom fully inset. The reveal
+                 wave runs in reverse: the top is consumed first and
+                 the disappearance travels downward.
+   After "closing" finishes, JS flips to "closed". Both states have
+   the text invisible; the closed rule snaps off the transition so
+   the mask resets silently. */
+
+body[data-menu="open"] {
+  overflow: hidden;
+}
+
+/* --- Saracinesca background --- */
+body[data-menu="open"] .site-menu {
+  max-height: 100vh;
+  pointer-events: auto;
+}
+
+/* --- Dot: slides between right and left edges --- */
+body[data-menu="open"] .menu-toggle {
+  transform: translateX(
+    calc(-100vw + var(--dot-size) + 2 * var(--header-pad))
+  );
+}
+
+@media (min-width: 768px) {
+  body[data-menu="open"] .menu-toggle {
+    transform: translateX(
+      calc(-100vw + var(--dot-size) + 2 * var(--space-12))
+    );
+  }
+}
+
+body[data-menu="open"] .menu-toggle-dot {
+  background: var(--menu-fg);
+}
+
+body[data-menu="open"] .menu-toggle:hover .menu-toggle-text {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+/* --- Open: text revealed bottom → top ---
+   A small delay lets the saracinesca start descending first, so the
+   reveal happens after the dark background has reached the items. */
+body[data-menu="open"] .menu-list a,
+body[data-menu="open"] .menu-social a,
+body[data-menu="open"] .menu-label-text,
+body[data-menu="open"] .menu-copyright {
+  clip-path: inset(0);
+  transition-delay: 0.18s;
+}
+
+body[data-menu="open"] .menu-label {
+  pointer-events: auto;
+}
+
+/* --- Closing: text covered top → bottom ---
+   The bottom inset grows, eating the text from the top down. */
+body[data-menu="closing"] .menu-list a,
+body[data-menu="closing"] .menu-social a,
+body[data-menu="closing"] .menu-label-text,
+body[data-menu="closing"] .menu-copyright {
+  clip-path: inset(0 0 100% 0);
+}
+
+/* --- Reset to closed ---
+   At the end of "closing" the text is already invisible. JS flips to
+   "closed" (which has the default inset(100% 0 0 0)); we suppress the
+   transition so the mask snap from "bottom-inset" to "top-inset" is
+   instantaneous and never seen. */
+body[data-menu="closed"] .menu-list a,
+body[data-menu="closed"] .menu-social a,
+body[data-menu="closed"] .menu-label-text,
+body[data-menu="closed"] .menu-copyright {
+  transition: none;
+}
+
+/* While the dot is sliding/animating, freeze "Menu" hover too */
+body.is-menu-animating .menu-label {
+  pointer-events: none;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  padding-block: var(--space-16) var(--space-24);
+  max-width: 980px;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding-block: var(--space-24) var(--space-32);
+  }
+}
+
+.hero-title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-display);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+  text-wrap: balance;
+  margin-bottom: var(--space-8);
+}
+
+.hero-meta {
+  font-size: var(--fs-md);
+  color: var(--ink-muted);
+  letter-spacing: -0.005em;
+}
+
+/* ---------- Section labels ---------- */
+.section-label {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-12);
+  border-bottom: 1px solid var(--line);
+}
+
+/* ---------- Work ---------- */
+.work {
+  padding-block: var(--space-12) var(--space-24);
+}
+
+/* Single-column stack of full-width project cards */
+.work-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .work-grid {
+    gap: var(--space-12);
+  }
+}
+
+.project {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  transition:
+    background-color var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+
+@media (min-width: 768px) {
+  .project {
+    gap: var(--space-8);
+    padding: var(--space-6);
+  }
+}
+
+.project:hover {
+  background: var(--surface);
+}
+
+.project-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(
+      120% 120% at 0% 0%,
+      color-mix(in oklab, var(--accent) 22%, var(--surface)) 0%,
+      var(--surface) 60%
+    );
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: clamp(var(--fs-2xl), 4vw + 0.5rem, 3.25rem);
+  letter-spacing: -0.025em;
+  text-align: center;
+  padding: var(--space-8);
+  overflow: hidden;
+  position: relative;
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.project-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.project:hover .project-cover {
+  transform: scale(1.005);
+}
+
+.project-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-inline: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .project-meta {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+}
+
+.project-title {
+  font-family: var(--font-serif);
+  font-size: clamp(var(--fs-xl), 3vw + 0.5rem, var(--fs-2xl));
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.project:hover .project-title {
+  color: var(--accent);
+}
+
+.project-info {
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+
+/* ---------- About ---------- */
+.about {
+  padding-block: var(--space-16);
+}
+
+.about-content {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.about-content p {
+  text-wrap: pretty;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-12);
+  margin-top: var(--space-16);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.footer-links a {
+  position: relative;
+}
+
+.footer-links a:hover {
+  color: var(--ink);
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }

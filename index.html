@@ -3,11 +3,136 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Giulia Frumento — Portfolio</title>
-    <link rel="stylesheet" href="/src/style.css" />
+    <title>Giulia Frumento — UX/UI Designer</title>
+    <meta
+      name="description"
+      content="UX/UI Designer based in Italy. Currently designing at Bending Spoons."
+    />
+    <link rel="stylesheet" href="./src/style.css" />
+    <script type="module" src="./src/main.js"></script>
   </head>
-  <body>
-    <h1>Ciao, sono Giulia</h1>
-    <p>UX/UI Designer.</p>
+  <body data-menu="closed">
+    <!-- HEADER -->
+    <header class="site-header">
+      <a href="/" class="logo">Giulia Frumento</a>
+      <button
+        class="menu-label"
+        type="button"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <span class="menu-label-text">Menu</span>
+      </button>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="site-menu"
+      >
+        <span class="menu-toggle-text" aria-hidden="true">Back</span>
+        <span class="menu-toggle-dot" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <!-- MENU OVERLAY -->
+    <nav id="site-menu" class="site-menu" aria-hidden="true">
+      <ul class="menu-list">
+        <li><a href="/" data-menu-link>Home</a></li>
+        <li><a href="#work" data-menu-link>Work</a></li>
+        <li><a href="#about" data-menu-link>About</a></li>
+        <li>
+          <a href="mailto:giuliashara.frumento@gmail.com" data-menu-link>Contact</a>
+        </li>
+      </ul>
+      <ul class="menu-social">
+        <li>
+          <a
+            href="https://www.linkedin.com/in/gs-frumento/"
+            target="_blank"
+            rel="noopener"
+            data-menu-link
+            >LinkedIn</a
+          >
+        </li>
+      </ul>
+      <p class="menu-copyright">
+        © 2026 Giulia Shara Frumento. All rights reserved.
+      </p>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <h1 class="hero-title">
+        UX/UI Designer crafting clear, human interfaces for digital products.
+      </h1>
+      <p class="hero-meta">Based in Italy — Currently at Bending Spoons</p>
+    </section>
+
+    <!-- WORK -->
+    <section id="work" class="work">
+      <h2 class="section-label">Selected work</h2>
+
+      <div class="work-grid">
+        <!-- Project 1 -->
+        <a href="#" class="project">
+          <div class="project-cover">Komoot Redesign</div>
+          <div class="project-meta">
+            <h3 class="project-title">Komoot Redesign</h3>
+            <p class="project-info">2025 · UX/UI · Growth</p>
+          </div>
+        </a>
+
+        <!-- Project 2 -->
+        <a href="#" class="project">
+          <div class="project-cover">Mosaic System</div>
+          <div class="project-meta">
+            <h3 class="project-title">Mosaic System</h3>
+            <p class="project-info">2024 · Design System</p>
+          </div>
+        </a>
+
+        <!-- Project 3 -->
+        <a href="#" class="project">
+          <div class="project-cover">Remini Reshot</div>
+          <div class="project-meta">
+            <h3 class="project-title">Remini Reshot</h3>
+            <p class="project-info">2025 · UX/UI · AI Feature</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="about">
+      <h2 class="section-label">About</h2>
+      <div class="about-content">
+        <p>
+          I'm a UX/UI Designer working across consumer products at Bending
+          Spoons. Currently focused on Remini and Komoot, where I work on growth
+          experiments, design systems, and end-to-end product flows — from
+          research to ship.
+        </p>
+        <p>
+          I care about clarity, speed of iteration, and writing copy that
+          doesn't insult the reader. Outside of work I travel, write, and
+          occasionally run.
+        </p>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <p>© 2026 Giulia Frumento</p>
+      <div class="footer-links">
+        <a href="mailto:giuliashara.frumento@gmail.com">Email</a>
+        <a
+          href="https://www.linkedin.com/in/gs-frumento/"
+          target="_blank"
+          rel="noopener"
+          >LinkedIn</a
+        >
+      </div>
+    </footer>
   </body>
 </html>
