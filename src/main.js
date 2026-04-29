@@ -58,6 +58,16 @@ if (toggle && menu) {
 
   menu.addEventListener("click", (e) => {
     const link = e.target.closest("[data-menu-link]");
-    if (link) closeMenu();
+    if (!link) return;
+
+    // Non-navigation protocols (mailto:, tel:, sms:) hand off to the OS
+    // instead of moving the user to a new page. Closing the menu under
+    // them creates a confusing flicker — and on iOS the system sheet
+    // returning focus can leave the menu in a half-closed state. Keep
+    // the menu open so the user lands back exactly where they left.
+    const href = link.getAttribute("href") || "";
+    if (/^(mailto:|tel:|sms:)/i.test(href)) return;
+
+    closeMenu();
   });
 }
