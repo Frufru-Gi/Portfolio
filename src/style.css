@@ -62,11 +62,20 @@
   --menu-fg: #ededeb;
   --menu-fg-muted: #8a8884;
 
-  /* Header layout */
+  /* Header layout — single horizontal-padding token shared by header
+     AND content sections. Content sections span the full viewport
+     width with the same outer padding as the header, so logo/dot
+     stay vertically aligned with text/photos at every breakpoint. */
   --header-h: 72px;
   --header-pad: var(--space-6);
   --dot-size: 20px;
   --dot-hit: 44px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-pad: var(--space-12);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -134,26 +143,22 @@ a {
   border-radius: var(--radius-sm);
 }
 
-/* ---------- Layout container ---------- */
+/* ---------- Layout container ----------
+   All page sections span the full viewport width with the same outer
+   padding as the header. This keeps the logo / menu dot / page text
+   on a single vertical line at every breakpoint. Inner readable
+   widths (e.g. body copy paragraphs) are constrained per-element
+   below — not at the container level — so headers, photos and grids
+   can use the full width while paragraphs stay easy to read. */
 .hero,
 .page-intro,
 .work,
 .about,
+.about-hero,
+.career,
 .site-footer {
   width: 100%;
-  max-width: var(--container);
-  margin-inline: auto;
-  padding-inline: var(--space-6);
-}
-
-@media (min-width: 768px) {
-  .hero,
-  .page-intro,
-  .work,
-  .about,
-  .site-footer {
-    padding-inline: var(--space-12);
-  }
+  padding-inline: var(--header-pad);
 }
 
 /* Reserve space for header (which is absolute, scrolls with the page) */
@@ -181,12 +186,6 @@ body {
   height: var(--header-h);
   padding-inline: var(--header-pad);
   pointer-events: none;
-}
-
-@media (min-width: 768px) {
-  .site-header {
-    padding-inline: var(--space-12);
-  }
 }
 
 .logo,
@@ -245,12 +244,6 @@ body {
   will-change: clip-path;
 }
 
-@media (min-width: 768px) {
-  .menu-label {
-    right: var(--space-12);
-  }
-}
-
 /* The toggle is the dot — always fixed, slides between sides.
    The dot is centered inside a 44x44 hit area; the button is offset so
    the *visible dot* (not the hit area) sits flush at --header-pad. */
@@ -272,12 +265,6 @@ body {
     transform var(--dur-rise) var(--ease-rise),
     background-color var(--dur-med) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
-}
-
-@media (min-width: 768px) {
-  .menu-toggle {
-    right: calc(var(--space-12) - (var(--dot-hit) - var(--dot-size)) / 2);
-  }
 }
 
 .menu-toggle-dot {
@@ -453,12 +440,6 @@ body[data-menu="open"] .menu-social {
   will-change: clip-path;
 }
 
-@media (min-width: 768px) {
-  .menu-copyright {
-    left: var(--space-12);
-  }
-}
-
 /* Mobile: stack the bottom row vertically.
    Side-by-side balance only works when the viewport is wide enough; on
    narrow screens the copyright would either overflow or collide with
@@ -509,15 +490,14 @@ body[data-menu="open"] .menu-toggle {
   );
 }
 
-@media (min-width: 768px) {
-  body[data-menu="open"] .menu-toggle {
-    transform: translateX(
-      calc(-100vw + var(--dot-size) + 2 * var(--space-12))
-    );
-  }
-}
-
-body[data-menu="open"] .menu-toggle-dot {
+/* Dot stays the menu-fg color for the WHOLE close animation, not just
+   while open. Otherwise the bg color flips to --ink (dark) immediately
+   on "closing" and the dot disappears against the still-visible dark
+   saracinesca. After the menu finishes retracting (state → "closed")
+   the rule no longer applies and the dot transitions back to --ink
+   smoothly on the now-light page bg. */
+body[data-menu="open"] .menu-toggle-dot,
+body[data-menu="closing"] .menu-toggle-dot {
   background: var(--menu-fg);
 }
 
@@ -562,6 +542,15 @@ body[data-menu="closed"] .menu-copyright {
   transition: none;
 }
 
+/* Dot color: snap instantly from --menu-fg → --ink when the menu is
+   fully closed. A 280ms transition here would briefly leave a near-
+   white dot on the (now light) page bg, which reads as "the dot
+   disappears for a moment". The next open state restores the normal
+   transition automatically. */
+body[data-menu="closed"] .menu-toggle-dot {
+  transition: none;
+}
+
 /* While the dot is sliding/animating, freeze "Menu" hover too */
 body.is-menu-animating .menu-label {
   pointer-events: none;
@@ -570,7 +559,6 @@ body.is-menu-animating .menu-label {
 /* ---------- Hero ---------- */
 .hero {
   padding-block: var(--space-16) var(--space-24);
-  max-width: 980px;
 }
 
 @media (min-width: 768px) {
@@ -587,6 +575,10 @@ body.is-menu-animating .menu-label {
   font-weight: 400;
   text-wrap: balance;
   margin-bottom: var(--space-8);
+  /* Cap line length so the title doesn't run edge-to-edge on very
+     wide viewports — the rest of the section is fluid, but the
+     headline still wants a comfortable measure. */
+  max-width: 22ch;
 }
 
 .hero-meta {
@@ -598,10 +590,10 @@ body.is-menu-animating .menu-label {
 /* ---------- Page intro (Work / About / etc.) ----------
    Same visual family as the home hero but a step down in density:
    tighter top padding, smaller bottom padding so the page content
-   feels close to the title rather than orphaned. */
+   feels close to the title rather than orphaned. Spans the full
+   layout container (1080px) so the lead statement breathes. */
 .page-intro {
   padding-block: var(--space-16) var(--space-12);
-  max-width: 980px;
 }
 
 @media (min-width: 768px) {
@@ -754,9 +746,18 @@ body.is-menu-animating .menu-label {
   flex-shrink: 0;
 }
 
-/* ---------- About ---------- */
+/* ---------- About ----------
+   Generous block padding around the secondary text so the bio sits
+   well clear of the lead statement above and the career timeline
+   below — strengthens the lead → bio → career hierarchy. */
 .about {
-  padding-block: var(--space-16);
+  padding-block: var(--space-32);
+}
+
+@media (min-width: 768px) {
+  .about {
+    padding-block: 200px;
+  }
 }
 
 .about-content {
@@ -772,6 +773,214 @@ body.is-menu-animating .menu-label {
 
 .about-content p {
   text-wrap: pretty;
+}
+
+/* Desktop: 2-col grid so the middle paragraph drops into the right
+   column, creating an editorial rhythm (left → right → left). */
+@media (min-width: 768px) {
+  .about-content {
+    max-width: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--space-16);
+    row-gap: var(--space-8);
+  }
+
+  .about-content p {
+    max-width: 48ch;
+  }
+
+  .about-content p:nth-child(1) {
+    grid-column: 1;
+  }
+
+  .about-content p:nth-child(2),
+  .about-content p:nth-child(3) {
+    grid-column: 2;
+  }
+}
+
+/* ---------- About hero (lead statement + portrait) ----------
+   Mobile: text big on top, photo portrait centered below.
+   Desktop: two columns, bottom-aligned — text shrinks to a modest
+   serif statement on the left, photo dominates on the right. This
+   visual flip (big-text-mobile / big-photo-desktop) mirrors the
+   editorial portfolio pattern (gareth-hughes, etc.) where mobile
+   leads with copy and desktop leads with image. */
+.about-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-block: var(--space-16);
+}
+
+@media (min-width: 768px) {
+  .about-hero {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--space-16);
+    padding-block: var(--space-24);
+    min-height: 70vh;
+  }
+}
+
+/* Title scale flips on desktop: from hero-display down to a calm
+   serif statement that pairs with the photo instead of competing. */
+.about-hero-text {
+  margin: 0;
+  text-wrap: balance;
+}
+
+@media (min-width: 768px) {
+  .about-hero-text {
+    flex: 1 1 0;
+    align-self: flex-end;
+    /* Bigger than the gareth-style "small statement" — the column is
+       now full-viewport width, so the type can grow with it. */
+    font-size: clamp(2.25rem, 2.8vw + 1rem, 4rem);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    max-width: 22ch;
+  }
+}
+
+.about-hero .about-photo {
+  margin: 0;
+  width: 75%;
+  max-width: 360px;
+  /* Mobile: anchor the portrait to the right margin instead of
+     centering it. Mirrors the desktop bottom-right alignment so the
+     photo always feels deliberately placed against the page edge. */
+  align-self: flex-end;
+}
+
+@media (min-width: 768px) {
+  .about-hero .about-photo {
+    flex: 0 0 auto;
+    /* Capped via max-width so the portrait stays a reasonable size on
+       very wide viewports (otherwise 38% of 4K would be huge). */
+    width: 42%;
+    max-width: 600px;
+    align-self: flex-end;
+    margin-left: auto;
+  }
+}
+
+.about-hero .about-photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: var(--surface);
+  border-radius: 4px;
+}
+
+/* ---------- Career ----------
+   Horizontal table-like rows: period · role · company · location.
+   Stacks to a vertical block on mobile so each cell gets its own
+   line — easier to scan when columns can't fit side by side. */
+.career {
+  position: relative;
+  padding-block: var(--space-12) var(--space-24);
+  border-top: 1px solid var(--line);
+  /* Width of the "Career" label column on desktop. Fixed (not %) so the
+     list's padding-left and the item's negative margin-left resolve to
+     the same pixel value — otherwise the borders wouldn't extend cleanly
+     under the label area (% margin/padding resolve against different
+     containing blocks). Sized to be the widest column so "Career"
+     visually claims its own slot, while the 4 data cells split the
+     remaining width equally. */
+  --career-aside-w: clamp(12rem, 24vw, 26rem);
+  --career-col-gap: var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .career {
+    padding-block: 0 var(--space-24);
+  }
+}
+
+/* Override the default uppercase muted look from .section-label so it
+   reads as a quiet inline label, matching the cells. */
+.career .section-label {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  border-bottom: none;
+  padding: 0;
+  margin: 0 0 var(--space-6);
+}
+
+@media (min-width: 768px) {
+  /* On desktop the heading sits to the LEFT of the first row, vertically
+     aligned with the first row's text baseline. We absolute-position it
+     and give it an explicit width equal to the aside column so it reads
+     as a defined "block" — its right edge lines up with where the data
+     cells start, mirroring the visual cell structure on the right. */
+  .career .section-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--career-aside-w);
+    margin: 0;
+    padding-top: var(--space-6);
+    padding-left: var(--header-pad);
+  }
+}
+
+.career-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  /* Push the rows right to clear the absolutely-positioned heading. */
+  .career-list {
+    padding-left: var(--career-aside-w);
+  }
+}
+
+.career-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-1);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+
+/* No closing divider after the final entry so the section doesn't end
+   with a hard horizontal line; lets the page bleed out into the footer. */
+.career-item:last-child {
+  border-bottom: none;
+}
+
+@media (min-width: 768px) {
+  .career-item {
+    /* 4 equal columns so the gap between data cells stays consistent
+       and the row fills the full available width to the right of the
+       Career label. */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: baseline;
+    column-gap: var(--career-col-gap);
+    padding-block: var(--space-6);
+  }
+}
+
+.career-period,
+.career-role,
+.career-company,
+.career-location {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--ink);
 }
 
 /* ---------- Footer ---------- */
@@ -799,6 +1008,53 @@ body.is-menu-animating .menu-label {
 
 .footer-links a:hover {
   color: var(--ink);
+}
+
+/* Mobile + tablet: stack the footer vertically and reorder so the layout
+   mirrors the open menu's bottom-left stack (Email → LinkedIn →
+   Copyright, top-to-bottom). The LinkedIn line sits at the same
+   vertical offset from the viewport bottom as `.menu-social` does when
+   the menu is open, so opening the menu doesn't make LinkedIn jump.
+   The breakpoint runs up to 1023px because the now-long email label
+   would force the desktop horizontal layout to wrap awkwardly on
+   tablet widths. */
+@media (max-width: 1023px) {
+  .site-footer {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    /* No flex gap — gaps between items are managed individually so
+       email/LinkedIn can sit tighter together while the gap to the
+       copyright matches the menu's 3.5em bottom-edge offset. */
+    gap: 0;
+  }
+
+  /* `display: contents` lets the email + LinkedIn anchors become
+     direct flex children of `.site-footer`, so we can `order` them
+     alongside the copyright `<p>` without restructuring the HTML. */
+  .footer-links {
+    display: contents;
+  }
+
+  /* Email — close to LinkedIn (they're a related contact pair). */
+  .footer-links a:first-child {
+    order: 1;
+    margin-bottom: var(--space-2);
+  }
+
+  /* LinkedIn — 2em margin so its bottom edge sits ~3.5em above the
+     copyright's bottom edge once line-height is added back, matching
+     the menu's `bottom: calc(var(--space-12) + 3.5em)` offset. */
+  .footer-links a:last-child {
+    order: 2;
+    margin-bottom: 2em;
+  }
+
+  .site-footer p {
+    order: 3;
+    margin: 0;
+  }
 }
 
 /* ---------- Reduced motion ---------- */
