@@ -23,12 +23,35 @@ if (toggle && menu) {
   const CLOSE_MS = 700;
   let animTimer = 0;
 
+  // On touch devices the `:hover` pseudo-class flashes for a frame on
+  // tap and then clears. Even with `@media (hover: none)` + `.is-touch`
+  // class fallbacks, some browsers still let the :hover rule win
+  // briefly (and a stale prod CSS cache can defeat media queries
+  // entirely). Writing to inline `style` beats any external rule on
+  // specificity, so the "Back" label stays painted for the whole
+  // time the menu is open on touch, regardless of :hover behavior.
+  const toggleText = toggle.querySelector(".menu-toggle-text");
+  const isTouch = document.documentElement.classList.contains("is-touch");
+
+  const showBackOnTouch = () => {
+    if (!isTouch || !toggleText) return;
+    toggleText.style.opacity = "1";
+    toggleText.style.transform = "translate(0, -50%)";
+  };
+
+  const hideBackOnTouch = () => {
+    if (!isTouch || !toggleText) return;
+    toggleText.style.opacity = "";
+    toggleText.style.transform = "";
+  };
+
   const openMenu = () => {
     window.clearTimeout(animTimer);
     body.dataset.menu = "open";
     toggle.setAttribute("aria-expanded", "true");
     menu.setAttribute("aria-hidden", "false");
     toggle.setAttribute("aria-label", "Close menu");
+    showBackOnTouch();
 
     body.classList.add("is-menu-animating");
     animTimer = window.setTimeout(() => {
@@ -42,6 +65,7 @@ if (toggle && menu) {
     toggle.setAttribute("aria-expanded", "false");
     menu.setAttribute("aria-hidden", "true");
     toggle.setAttribute("aria-label", "Open menu");
+    hideBackOnTouch();
 
     body.classList.add("is-menu-animating");
     animTimer = window.setTimeout(() => {
