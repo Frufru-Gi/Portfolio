@@ -538,14 +538,23 @@ body[data-menu="open"] .menu-toggle:hover .menu-toggle-text {
 
 /* Touch devices (no real hover): `:hover` is unreliable — it flashes
    briefly on tap and then clears, leaving "Back" gone until another
-   tap. On no-hover pointers we show "Back" for the entire duration
-   the menu is open, so it reads as a stable label next to the dot
-   rather than a hover affordance. */
-@media (hover: none) {
+   tap. On no-hover / coarse-pointer primary inputs we show "Back"
+   for the entire duration the menu is open, so it reads as a stable
+   label next to the dot rather than a hover affordance.
+   Two `@media` conditions (logical OR) + the JS-added `.is-touch`
+   class on <html> together cover the edge cases — some browsers
+   report hover:hover even on tablets with Pencil input, and an
+   explicit touch-detection class is the most reliable fallback. */
+@media (hover: none), (pointer: coarse) {
   body[data-menu="open"] .menu-toggle .menu-toggle-text {
     opacity: 1;
     transform: translate(0, -50%);
   }
+}
+
+html.is-touch body[data-menu="open"] .menu-toggle .menu-toggle-text {
+  opacity: 1;
+  transform: translate(0, -50%);
 }
 
 /* --- Open: text revealed bottom → top ---
@@ -696,6 +705,10 @@ body.is-menu-animating .menu-label {
   letter-spacing: -0.025em;
   font-weight: 400;
   text-wrap: balance;
+  /* Cap the measure so longer manifesto-style headlines (e.g. the
+     Work intro) wrap to a comfortable 3-4 lines instead of running
+     the entire viewport width on large screens. */
+  max-width: 26ch;
 }
 
 .page-subtitle {
@@ -888,10 +901,11 @@ body.is-menu-animating .menu-label {
   inset: 0;
   /* Once project media is added, this will host an <img>/<video>;
      for now it relies on the per-card `--cover` background color set
-     on the parent via inline style. A subtle vignette at the bottom
-     ensures text legibility against any future cover. */
+     on the parent via inline style. The vignette sits at the TOP of
+     the card (matching the caption position) so the title + category
+     stay legible over any future cover image. */
   background: linear-gradient(
-    to top,
+    to bottom,
     rgb(0 0 0 / 0.18) 0%,
     transparent 35%
   );
@@ -908,9 +922,12 @@ body.is-menu-animating .menu-label {
   transform: scale(1.06);
 }
 
+/* Static caption pinned to the TOP of the card. No scroll animation —
+   the title + category stay anchored at top-left, respecting the
+   overlay's own padding. */
 .project-overlay {
   position: absolute;
-  inset: auto 0 0 0;
+  inset: 0 0 auto 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);

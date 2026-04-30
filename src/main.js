@@ -3,6 +3,19 @@ const toggle = document.querySelector(".menu-toggle");
 const menuLabel = document.querySelector(".menu-label");
 const menu = document.querySelector(".site-menu");
 
+// Flag touch-capable devices on <html>. Belt-and-braces with the
+// `@media (hover: none), (pointer: coarse)` CSS: some browsers report
+// conflicting hover/pointer values (e.g. tablets with stylus input),
+// so we OR three signals. CSS uses `.is-touch` to keep the "Back"
+// label permanently visible while the menu is open on touch.
+if (
+  "ontouchstart" in window ||
+  (window.matchMedia && window.matchMedia("(hover: none)").matches) ||
+  (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)
+) {
+  document.documentElement.classList.add("is-touch");
+}
+
 if (toggle && menu) {
   // Match CSS: open = saracinesca 700ms + items 700ms with 180ms delay = 880ms;
   // close = saracinesca 700ms + items 700ms (no delay) = 700ms.
@@ -68,7 +81,33 @@ if (toggle && menu) {
     const href = link.getAttribute("href") || "";
     if (/^(mailto:|tel:|sms:)/i.test(href)) return;
 
-    closeMenu();
+    // Let the browser handle modifier-clicks (open in new tab/window/download)
+    // and explicit `target="_blank"` links (e.g. LinkedIn) without
+    // swallowing the navigation — just start the close animation so
+    // when the user returns to this tab the menu is already gone.
+    const opensInNewContext =
+      link.target === "_blank" ||
+      e.ctrlKey ||
+      e.metaKey ||
+      e.shiftKey ||
+      e.altKey;
+    if (opensInNewContext) {
+      closeMenu();
+      return;
+    }
+
+    // Internal navigation: mark this as a menu-driven transition so the
+    // TARGET page can boot up with the menu already "open" and immediately
+    // play the close animation over its freshly-loaded content. That way
+    // the user sees the new page appear *under* the retracting menu —
+    // not the source page holding for 700ms and then teleporting.
+    // The click proceeds normally; no preventDefault, no delay.
+    try {
+      sessionStorage.setItem("menu-transition-nav", String(Date.now()));
+    } catch (_) {
+      // If storage is blocked (private mode, quotas), just let the
+      // browser navigate without the on-arrival animation.
+    }
   });
 }
 
@@ -168,3 +207,4 @@ if (slideshow) {
     startAuto();
   }
 }
+

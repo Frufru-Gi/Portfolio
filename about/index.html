@@ -12,6 +12,49 @@
     <script type="module" src="/src/main.js"></script>
   </head>
   <body data-menu="closed">
+    <!-- MENU-TRANSITION BOOTSTRAP — runs BEFORE the rest of <body> is
+         parsed/painted. If the user arrived from a menu-link click on
+         the previous page, we land here with the menu already visually
+         "open" and then immediately kick off the close animation, so
+         the new page appears UNDER the retracting saracinesca rather
+         than blinking into view. Inline on purpose: external scripts
+         in <head> can't touch document.body, and type="module" scripts
+         are deferred — both would introduce a flash of the open menu
+         before the transition starts. -->
+    <script>
+      (function () {
+        try {
+          var ts = parseInt(
+            sessionStorage.getItem("menu-transition-nav") || "0",
+            10
+          );
+          if (!ts) return;
+          sessionStorage.removeItem("menu-transition-nav");
+          // Guard against stale flags from an aborted navigation.
+          if (Date.now() - ts > 3000) return;
+        } catch (_) {
+          return;
+        }
+
+        var body = document.body;
+        body.dataset.menu = "open";
+        body.classList.add("is-menu-animating");
+        // Two rAFs guarantee the "open" state is committed to the
+        // compositor before we flip to "closing" — otherwise some
+        // browsers coalesce both changes into a single frame and the
+        // transition never kicks in.
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            body.dataset.menu = "closing";
+            setTimeout(function () {
+              body.dataset.menu = "closed";
+              body.classList.remove("is-menu-animating");
+            }, 700);
+          });
+        });
+      })();
+    </script>
+
     <!-- HEADER -->
     <header class="site-header">
       <a href="/" class="logo">Giulia Frumento</a>
@@ -124,7 +167,7 @@
           <span class="career-location">Milan</span>
         </li>
         <li class="career-item">
-          <span class="career-period">2019 — 2019</span>
+          <span class="career-period">2018 — 2019</span>
           <span class="career-role">Digital Designer</span>
           <span class="career-company">MediaMonks</span>
           <span class="career-location">Netherlands</span>
