@@ -62,6 +62,12 @@
   --menu-fg: #ededeb;
   --menu-fg-muted: #8a8884;
 
+  /* Static "text over dark media" color — used as the fallback for
+     card/slide captions on dark covers. Intentionally NOT tied to
+     --menu-fg so that flipping the menu to a light scheme in dark
+     mode doesn't turn this into dark-on-dark on project covers. */
+  --on-dark: #ededeb;
+
   /* Header layout — single horizontal-padding token shared by header
      AND content sections. Content sections span the full viewport
      width with the same outer padding as the header, so logo/dot
@@ -86,6 +92,17 @@
     --ink-muted: #8a8884;
     --line: rgba(255, 255, 255, 0.08);
     --accent: #e7724f;
+
+    /* Menu flips too: the overlay becomes light-on-dark's counterpart
+       so the menu feels "contrasting" against whatever mode the page
+       is in (dark page → light menu). The values mirror the light-mode
+       page palette (cream bg, near-black ink), so the menu keeps the
+       same visual weight — just with the palette inverted.
+       --on-dark stays untouched (still #ededeb) because project covers
+       remain dark in both modes and need consistent light captions. */
+    --menu-bg: #faf8f5;
+    --menu-fg: #111111;
+    --menu-fg-muted: #6b6b6b;
   }
 }
 
@@ -99,6 +116,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Reserve space for the scrollbar even when it's hidden (menu open)
+     so the page doesn't shift horizontally when scroll is locked. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -483,6 +503,16 @@ body[data-menu="open"] .site-menu {
   pointer-events: auto;
 }
 
+/* Lock page scroll while the menu is visible (open OR closing). Without
+   this, Chrome happily scrolls the page behind the fixed saracinesca
+   when the user touchpad-scrolls or wheels, which makes the overlay
+   feel unanchored. We apply it through the full close animation so the
+   page can't shift under the retracting dark bg either. */
+body[data-menu="open"],
+body[data-menu="closing"] {
+  overflow: hidden;
+}
+
 /* --- Dot: slides between right and left edges --- */
 body[data-menu="open"] .menu-toggle {
   transform: translateX(
@@ -506,6 +536,18 @@ body[data-menu="open"] .menu-toggle:hover .menu-toggle-text {
   transform: translate(0, -50%);
 }
 
+/* Touch devices (no real hover): `:hover` is unreliable — it flashes
+   briefly on tap and then clears, leaving "Back" gone until another
+   tap. On no-hover pointers we show "Back" for the entire duration
+   the menu is open, so it reads as a stable label next to the dot
+   rather than a hover affordance. */
+@media (hover: none) {
+  body[data-menu="open"] .menu-toggle .menu-toggle-text {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
 /* --- Open: text revealed bottom → top ---
    A small delay lets the saracinesca start descending first, so the
    reveal happens after the dark background has reached the items. */
@@ -524,13 +566,28 @@ body[data-menu="open"] .menu-label {
 /* --- Closing: text covered top → bottom ---
    The TOP inset grows from 0 → 100%, so the top edge of the clip box
    moves down through the glyphs. Visually the top of the text gets
-   eaten first, like a curtain dropping from above, mirroring the
-   saracinesca pulling up behind it. */
+   eaten first, like a curtain dropping from above.
+   Center items (menu list + "Menu" label) need to finish hiding
+   before the saracinesca retracts past them — that happens around
+   t≈330ms of the 700ms close, so a ~350ms ease-rise keeps the fade
+   visible and graceful but guarantees the text is gone by the time
+   the dark bg has rolled away from it. */
 body[data-menu="closing"] .menu-list a,
+body[data-menu="closing"] .menu-label-text {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.4s var(--ease-rise);
+}
+
+/* Bottom-anchored items need a special case: the saracinesca retracts
+   from the bottom up, so LinkedIn and copyright get uncovered VERY
+   early (~120-200ms into the 700ms close). If they faded at the base
+   rate they'd still be partly visible over the page bg after the
+   dark bg has already rolled past them — a brief flash. A ~220ms
+   ease-out clip-path finishes their hide before exposure. */
 body[data-menu="closing"] .menu-social a,
-body[data-menu="closing"] .menu-label-text,
 body[data-menu="closing"] .menu-copyright {
   clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.27s var(--ease-out);
 }
 
 /* --- Reset to closed ---
@@ -662,7 +719,6 @@ body.is-menu-animating .menu-label {
   border-bottom: 1px solid var(--line);
 }
 
-/* ---------- Work ---------- */
 /* ---------- Marquee — bridges the hero to the work grid ----------
    Full-bleed horizontal scroller. Track is duplicated 1:1 in the HTML
    so the keyframe slides exactly -50% for a seamless loop. */
@@ -795,8 +851,10 @@ body.is-menu-animating .menu-label {
   border-radius: 14px;
   background: var(--cover, var(--surface));
   /* Default text color over covers. Per-card override via
-     `style="--ink-on-cover: …"` for cards with light covers. */
-  color: var(--ink-on-cover, var(--menu-fg));
+     `style="--ink-on-cover: …"` for cards with light covers. The
+     fallback is --on-dark (a fixed light tone), NOT --menu-fg —
+     so dark covers stay legible even when dark mode flips the menu. */
+  color: var(--ink-on-cover, var(--on-dark));
   text-decoration: none;
   /* Hover lift + drop shadow (gareth-hughes pattern). Initial values
      so the transition has something to interpolate from. */
@@ -887,6 +945,177 @@ body.is-menu-animating .menu-label {
   letter-spacing: -0.005em;
   /* Slightly faded relative to the title — visible but secondary. */
   opacity: 0.7;
+}
+
+/* ---------- Work slideshow (Work page) ----------
+   INK-style full-size rotating carousel. Single viewport, track is
+   400% wide (4 slides × 25%), JS sets `--slide-index` on the track
+   and CSS turns it into a translateX. Manual prev/next + auto-advance
+   every 5s, paused on hover or when the tab is hidden. */
+.work-slideshow {
+  width: 100%;
+  padding-inline: var(--header-pad);
+  padding-block: var(--space-8) var(--space-24);
+}
+
+@media (min-width: 768px) {
+  .work-slideshow {
+    padding-block: var(--space-12) 200px;
+  }
+}
+
+.slideshow-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  /* Cinematic aspect, capped so very tall windows don't produce a
+     slide that exceeds the viewport vertically. */
+  aspect-ratio: 16 / 10;
+  max-height: 82vh;
+  background: var(--surface);
+}
+
+.slideshow-track {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  /* 4 slides side by side — each is 25% of the track so the viewport
+     shows exactly one at a time. */
+  width: 400%;
+  transform: translateX(calc(var(--slide-index, 0) * -25%));
+  transition: transform 0.85s cubic-bezier(0.77, 0, 0.43, 0.99);
+  will-change: transform;
+}
+
+.slide {
+  flex: 0 0 25%;
+  position: relative;
+  height: 100%;
+  background: var(--cover, var(--surface));
+  /* Default text color over covers. Per-slide override via
+     `style="--ink-on-cover: …"` for light covers (mirrors home cards).
+     Uses --on-dark (a static light tone) so dark covers stay
+     legible even when dark mode flips the menu palette. */
+  color: var(--ink-on-cover, var(--on-dark));
+}
+
+.slide-link {
+  display: block;
+  position: absolute;
+  inset: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.slide-cover {
+  position: absolute;
+  inset: 0;
+  /* Vignette so the caption stays legible against any future
+     <img>/<video> placed inside the slide. */
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / 0.28) 0%,
+    rgb(0 0 0 / 0.08) 20%,
+    transparent 45%
+  );
+  pointer-events: none;
+}
+
+.slide-caption {
+  position: absolute;
+  left: var(--space-8);
+  right: var(--space-8);
+  bottom: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .slide-caption {
+    left: var(--space-12);
+    right: var(--space-12);
+    bottom: var(--space-12);
+  }
+}
+
+.slide-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.5rem, 3vw + 0.5rem, 3rem);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.slide-category {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(var(--fs-sm), 0.8vw + 0.5rem, var(--fs-md));
+  letter-spacing: -0.005em;
+  opacity: 0.8;
+}
+
+/* --- Controls row: prev / counter / next --- */
+.slideshow-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .slideshow-controls {
+    margin-top: var(--space-8);
+  }
+}
+
+.slideshow-nav {
+  border: none;
+  background: none;
+  padding: var(--space-2) var(--space-4);
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-lg);
+  color: var(--ink);
+  cursor: pointer;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.slideshow-nav:hover {
+  opacity: 0.6;
+}
+
+.slideshow-nav:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.slideshow-counter {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.slideshow-counter-sep {
+  color: var(--ink-muted);
+  margin: 0 var(--space-1);
+}
+
+/* Reduced-motion: disable auto-advance + transition so nothing moves
+   unless the user clicks. */
+@media (prefers-reduced-motion: reduce) {
+  .slideshow-track {
+    transition: none;
+  }
 }
 
 /* ---------- A11y utility ---------- */

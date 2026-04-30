@@ -70,33 +70,51 @@
       </p>
     </section>
 
-    <!-- WORK -->
-    <section class="work">
-      <div class="work-grid">
-        <a href="#" class="project">
-          <div class="project-cover">Komoot Redesign</div>
-          <div class="project-meta">
-            <h3 class="project-title">Komoot Redesign</h3>
-            <p class="project-info">2025 · UX/UI · Growth</p>
-          </div>
-        </a>
+    <!-- WORK — asymmetric 12-col grid, gareth-hughes-style cards.
+         Row 1: large + small. Row 2: small + large. Mobile: single col. -->
+    <section class="work" aria-labelledby="work-heading">
+      <h2 id="work-heading" class="visually-hidden">Selected work</h2>
+      <ul class="work-grid">
+        <li class="project project--lg" style="--cover: #2b1f4a">
+          <a href="#" class="project-link">
+            <div class="project-cover" aria-hidden="true"></div>
+            <div class="project-overlay">
+              <h3 class="project-title">Komoot Redesign</h3>
+              <p class="project-category">UX/UI · Growth</p>
+            </div>
+          </a>
+        </li>
 
-        <a href="#" class="project">
-          <div class="project-cover">Mosaic System</div>
-          <div class="project-meta">
-            <h3 class="project-title">Mosaic System</h3>
-            <p class="project-info">2024 · Design System</p>
-          </div>
-        </a>
+        <li class="project project--sm" style="--cover: #f1ece4; --ink-on-cover: #131211">
+          <a href="#" class="project-link">
+            <div class="project-cover" aria-hidden="true"></div>
+            <div class="project-overlay">
+              <h3 class="project-title">Mosaic System</h3>
+              <p class="project-category">Design System</p>
+            </div>
+          </a>
+        </li>
 
-        <a href="#" class="project">
-          <div class="project-cover">Remini Reshot</div>
-          <div class="project-meta">
-            <h3 class="project-title">Remini Reshot</h3>
-            <p class="project-info">2025 · UX/UI · AI Feature</p>
-          </div>
-        </a>
-      </div>
+        <li class="project project--sm" style="--cover: #131211">
+          <a href="#" class="project-link">
+            <div class="project-cover" aria-hidden="true"></div>
+            <div class="project-overlay">
+              <h3 class="project-title">Remini Reshot</h3>
+              <p class="project-category">UX/UI · AI Feature</p>
+            </div>
+          </a>
+        </li>
+
+        <li class="project project--lg" style="--cover: #c6b9a8; --ink-on-cover: #131211">
+          <a href="#" class="project-link">
+            <div class="project-cover" aria-hidden="true"></div>
+            <div class="project-overlay">
+              <h3 class="project-title">Project 04</h3>
+              <p class="project-category">Coming soon</p>
+            </div>
+          </a>
+        </li>
+      </ul>
     </section>
 
     <!-- FOOTER -->

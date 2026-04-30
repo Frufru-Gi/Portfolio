@@ -71,3 +71,100 @@ if (toggle && menu) {
     closeMenu();
   });
 }
+
+// -------- Work-page slideshow --------
+// Auto-advancing carousel. CSS drives the visual transform via
+// `--slide-index` on the track; JS only manages state + timers.
+const slideshow = document.querySelector("[data-slideshow]");
+if (slideshow) {
+  const track = slideshow.querySelector("[data-slideshow-track]");
+  const slides = track ? track.querySelectorAll(".slide") : [];
+  const prevBtn = slideshow.querySelector("[data-slideshow-prev]");
+  const nextBtn = slideshow.querySelector("[data-slideshow-next]");
+  const currentEl = slideshow.querySelector("[data-slideshow-current]");
+  const totalEl = slideshow.querySelector("[data-slideshow-total]");
+
+  if (track && slides.length > 0) {
+    const total = slides.length;
+    const AUTO_MS = 5000;
+    let current = 0;
+    let autoTimer = 0;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (totalEl) totalEl.textContent = String(total);
+
+    const applyCurrent = () => {
+      track.style.setProperty("--slide-index", String(current));
+      if (currentEl) currentEl.textContent = String(current + 1);
+      slides.forEach((slide, i) => {
+        // Mark inactive slides as inert-ish for screen readers & keyboard.
+        slide.toggleAttribute("aria-hidden", i !== current);
+      });
+    };
+
+    const goTo = (index) => {
+      // Wrap around at both ends.
+      current = ((index % total) + total) % total;
+      applyCurrent();
+    };
+
+    const next = () => goTo(current + 1);
+    const prev = () => goTo(current - 1);
+
+    const startAuto = () => {
+      if (reducedMotion) return;
+      stopAuto();
+      autoTimer = window.setInterval(next, AUTO_MS);
+    };
+
+    function stopAuto() {
+      if (autoTimer) {
+        window.clearInterval(autoTimer);
+        autoTimer = 0;
+      }
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => {
+        prev();
+        // Any manual interaction resets the auto-advance clock so the
+        // next transition doesn't feel abrupt right after a click.
+        startAuto();
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        next();
+        startAuto();
+      });
+    }
+
+    // Pause on hover so viewers can read a slide they stopped on.
+    slideshow.addEventListener("pointerenter", stopAuto);
+    slideshow.addEventListener("pointerleave", startAuto);
+
+    // Pause when the tab is hidden to avoid burning cycles (and so the
+    // carousel isn't 12 slides ahead when they return).
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopAuto();
+      else startAuto();
+    });
+
+    // Keyboard nav when focus is on a control inside the slideshow.
+    slideshow.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") {
+        prev();
+        startAuto();
+      } else if (e.key === "ArrowRight") {
+        next();
+        startAuto();
+      }
+    });
+
+    applyCurrent();
+    startAuto();
+  }
+}

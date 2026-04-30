@@ -97,51 +97,103 @@
       </div>
     </section>
 
-    <!-- WORK — asymmetric 12-col grid, gareth-hughes-style cards.
-         Row 1: large + small. Row 2: small + large. Mobile: single col. -->
-    <section id="work" class="work" aria-labelledby="work-heading">
-      <h2 id="work-heading" class="visually-hidden">Selected work</h2>
-      <ul class="work-grid">
-        <li class="project project--lg" style="--cover: #2b1f4a">
-          <a href="#" class="project-link">
-            <div class="project-cover" aria-hidden="true"></div>
-            <div class="project-overlay">
-              <h3 class="project-title">Komoot Redesign</h3>
-              <p class="project-category">UX/UI · Growth</p>
-            </div>
-          </a>
-        </li>
+    <!-- WORK SLIDESHOW — INK-style full-size rotating projects.
+         Auto-advances every 5s, pauses on hover, manual prev/next.
+         Track width = 400% (4 slides × 25%), JS sets translateX per step. -->
+    <section
+      id="work"
+      class="work-slideshow"
+      aria-label="Selected projects"
+      aria-roledescription="carousel"
+      data-slideshow
+    >
+      <div class="slideshow-viewport">
+        <ol class="slideshow-track" data-slideshow-track>
+          <li
+            class="slide"
+            style="--cover: #2b1f4a"
+            aria-roledescription="slide"
+            aria-label="1 of 4"
+          >
+            <a href="#" class="slide-link">
+              <div class="slide-cover" aria-hidden="true"></div>
+              <div class="slide-caption">
+                <h2 class="slide-title">Komoot Redesign</h2>
+                <p class="slide-category">UX/UI · Growth</p>
+              </div>
+            </a>
+          </li>
 
-        <li class="project project--sm" style="--cover: #f1ece4; --ink-on-cover: #131211">
-          <a href="#" class="project-link">
-            <div class="project-cover" aria-hidden="true"></div>
-            <div class="project-overlay">
-              <h3 class="project-title">Mosaic System</h3>
-              <p class="project-category">Design System</p>
-            </div>
-          </a>
-        </li>
+          <li
+            class="slide"
+            style="--cover: #f1ece4; --ink-on-cover: #131211"
+            aria-roledescription="slide"
+            aria-label="2 of 4"
+          >
+            <a href="#" class="slide-link">
+              <div class="slide-cover" aria-hidden="true"></div>
+              <div class="slide-caption">
+                <h2 class="slide-title">Mosaic System</h2>
+                <p class="slide-category">Design System</p>
+              </div>
+            </a>
+          </li>
 
-        <li class="project project--sm" style="--cover: #131211">
-          <a href="#" class="project-link">
-            <div class="project-cover" aria-hidden="true"></div>
-            <div class="project-overlay">
-              <h3 class="project-title">Remini Reshot</h3>
-              <p class="project-category">UX/UI · AI Feature</p>
-            </div>
-          </a>
-        </li>
+          <li
+            class="slide"
+            style="--cover: #131211"
+            aria-roledescription="slide"
+            aria-label="3 of 4"
+          >
+            <a href="#" class="slide-link">
+              <div class="slide-cover" aria-hidden="true"></div>
+              <div class="slide-caption">
+                <h2 class="slide-title">Remini Reshot</h2>
+                <p class="slide-category">UX/UI · AI Feature</p>
+              </div>
+            </a>
+          </li>
 
-        <li class="project project--lg" style="--cover: #c6b9a8; --ink-on-cover: #131211">
-          <a href="#" class="project-link">
-            <div class="project-cover" aria-hidden="true"></div>
-            <div class="project-overlay">
-              <h3 class="project-title">Project 04</h3>
-              <p class="project-category">Coming soon</p>
-            </div>
-          </a>
-        </li>
-      </ul>
+          <li
+            class="slide"
+            style="--cover: #c6b9a8; --ink-on-cover: #131211"
+            aria-roledescription="slide"
+            aria-label="4 of 4"
+          >
+            <a href="#" class="slide-link">
+              <div class="slide-cover" aria-hidden="true"></div>
+              <div class="slide-caption">
+                <h2 class="slide-title">Project 04</h2>
+                <p class="slide-category">Coming soon</p>
+              </div>
+            </a>
+          </li>
+        </ol>
+      </div>
+
+      <div class="slideshow-controls">
+        <button
+          type="button"
+          class="slideshow-nav slideshow-prev"
+          aria-label="Previous project"
+          data-slideshow-prev
+        >
+          <span aria-hidden="true">←</span>
+        </button>
+        <p class="slideshow-counter" aria-live="polite">
+          <span data-slideshow-current>1</span>
+          <span class="slideshow-counter-sep" aria-hidden="true">/</span>
+          <span data-slideshow-total>4</span>
+        </p>
+        <button
+          type="button"
+          class="slideshow-nav slideshow-next"
+          aria-label="Next project"
+          data-slideshow-next
+        >
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
     </section>
 
     <!-- FOOTER -->
