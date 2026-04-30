@@ -557,7 +557,15 @@ body.is-menu-animating .menu-label {
 }
 
 /* ---------- Hero ---------- */
+/* Hero fills the first viewport (minus the header reserve at the top of
+   <body>) and pins its content to the bottom — INK pattern: long top
+   breath, statement anchored at the foot of the screen, with the work
+   grid revealed only on scroll. */
 .hero {
+  min-height: calc(100vh - var(--header-h));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   padding-block: var(--space-16) var(--space-24);
 }
 
@@ -567,14 +575,32 @@ body.is-menu-animating .menu-label {
   }
 }
 
+/* Small intro line above the hero statement — INK-style "eyebrow" that
+   gives the page a personal entry point and breaks up the headline so
+   it doesn't read as one undifferentiated block. */
+.hero-eyebrow {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-serif);
+  font-weight: 400;
+  /* Substantial — INK's eyebrow reads as a confident sub-statement,
+     not a metadata caption. Roughly 40% of the main headline at the
+     upper bound. */
+  font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink-muted);
+}
+
 .hero-title {
   font-family: var(--font-serif);
-  font-size: var(--fs-display);
-  line-height: 1.05;
-  letter-spacing: -0.025em;
+  /* Larger than the previous --fs-display so the headline carries the
+     INK-style weight on big screens; clamps down gracefully on phones. */
+  font-size: clamp(2.75rem, 7vw + 1rem, 6.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
   font-weight: 400;
   text-wrap: balance;
-  margin-bottom: var(--space-8);
+  margin: 0 0 var(--space-16);
   /* Cap line length so the title doesn't run edge-to-edge on very
      wide viewports — the rest of the section is fluid, but the
      headline still wants a comfortable measure. */
@@ -633,117 +659,232 @@ body.is-menu-animating .menu-label {
 }
 
 /* ---------- Work ---------- */
-.work {
-  padding-block: var(--space-12) var(--space-24);
+/* ---------- Marquee — bridges the hero to the work grid ----------
+   Full-bleed horizontal scroller. Track is duplicated 1:1 in the HTML
+   so the keyframe slides exactly -50% for a seamless loop. */
+.marquee {
+  width: 100%;
+  overflow: hidden;
+  padding-block: var(--space-12);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
-/* Single-column stack of full-width project cards */
-.work-grid {
+@media (min-width: 768px) {
+  .marquee {
+    padding-block: var(--space-16);
+  }
+}
+
+.marquee-track {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
+  align-items: center;
+  gap: var(--space-12);
+  width: max-content;
+  white-space: nowrap;
+  animation: marquee-scroll 60s linear infinite;
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .marquee-track {
+    gap: var(--space-16);
+  }
+}
+
+.marquee-item,
+.marquee-sep {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.25rem, 6vw + 0.5rem, 5.5rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  flex-shrink: 0;
+}
+
+.marquee-item {
+  color: var(--ink);
+}
+
+.marquee-sep {
+  color: var(--ink-muted);
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* -50% works because the track duplicates its content exactly once */
+    transform: translateX(-50%);
+  }
+}
+
+/* Pause on hover so visitors can read individual items if curious */
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ---------- Work — gareth-hughes asymmetric 12-col gallery ----------
+   Row 1: lg (8 col) + sm (4 col). Row 2: sm (4 col) + lg (8 col).
+   Aspect ratios chosen so both items in a row resolve to the SAME
+   height (lg 8/5 + sm 4/5 → both ~5/12 of container width).
+   On mobile the grid collapses to a single column with a calmer 4/3
+   aspect for each card. */
+.work {
+  padding-block: var(--space-16) var(--space-32);
+}
+
+@media (min-width: 768px) {
+  .work {
+    padding-block: var(--space-24) 200px;
+  }
+}
+
+.work-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
 }
 
 @media (min-width: 768px) {
   .work-grid {
-    gap: var(--space-12);
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--space-6);
+  }
+
+  .project--lg {
+    grid-column: span 8;
+  }
+
+  .project--sm {
+    grid-column: span 4;
   }
 }
 
 .project {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
-  background: transparent;
-  transition:
-    background-color var(--dur-med) var(--ease-out),
-    transform var(--dur-med) var(--ease-out);
+  margin: 0;
+  padding: 0;
+}
+
+.project-link {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--cover, var(--surface));
+  /* Default text color over covers. Per-card override via
+     `style="--ink-on-cover: …"` for cards with light covers. */
+  color: var(--ink-on-cover, var(--menu-fg));
+  text-decoration: none;
+  transition: filter var(--dur-med) var(--ease-out);
 }
 
 @media (min-width: 768px) {
-  .project {
-    gap: var(--space-8);
-    padding: var(--space-6);
+  /* lg span 8 + aspect 8/5 and sm span 4 + aspect 4/5 produce the
+     same row height — see comment on .work for the math. */
+  .project--lg .project-link {
+    aspect-ratio: 8 / 5;
   }
-}
 
-.project:hover {
-  background: var(--surface);
+  .project--sm .project-link {
+    aspect-ratio: 4 / 5;
+  }
 }
 
 .project-cover {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-md);
-  background:
-    radial-gradient(
-      120% 120% at 0% 0%,
-      color-mix(in oklab, var(--accent) 22%, var(--surface)) 0%,
-      var(--surface) 60%
-    );
-  color: var(--ink);
-  font-family: var(--font-serif);
-  font-size: clamp(var(--fs-2xl), 4vw + 0.5rem, 3.25rem);
-  letter-spacing: -0.025em;
-  text-align: center;
-  padding: var(--space-8);
-  overflow: hidden;
-  position: relative;
-  transition: transform var(--dur-med) var(--ease-out);
-}
-
-.project-cover::after {
-  content: "";
   position: absolute;
   inset: 0;
-  border: 1px solid var(--line);
-  border-radius: inherit;
+  /* Once project media is added, this will host an <img>/<video>;
+     for now it relies on the per-card `--cover` background color set
+     on the parent via inline style. A subtle vignette at the bottom
+     ensures text legibility against any future cover. */
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / 0.18) 0%,
+    transparent 35%
+  );
   pointer-events: none;
 }
 
-.project:hover .project-cover {
-  transform: scale(1.005);
-}
-
-.project-meta {
+.project-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding-inline: var(--space-2);
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-6);
 }
 
 @media (min-width: 768px) {
-  .project-meta {
-    flex-direction: row;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-6);
+  .project-overlay {
+    padding: var(--space-8);
   }
 }
 
+.project-overlay-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  /* Allow flex children to shrink past their intrinsic content width
+     so long client names on the right can claim the room they need
+     (and the title side wraps to multiple lines if needed). */
+  min-width: 0;
+}
+
 .project-title {
-  font-family: var(--font-serif);
-  font-size: clamp(var(--fs-xl), 3vw + 0.5rem, var(--fs-2xl));
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-  transition: color var(--dur-fast) var(--ease-out);
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(var(--fs-lg), 1.6vw + 0.6rem, var(--fs-xl));
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
 }
 
-.project:hover .project-title {
-  color: var(--accent);
+/* Slightly tighter title on small cards so it leaves more room for the
+   right-aligned client name within the narrower 4-col footprint. */
+@media (min-width: 768px) {
+  .project--sm .project-title {
+    font-size: var(--fs-lg);
+  }
 }
 
-.project-info {
+.project-category,
+.project-client {
+  margin: 0;
+  font-family: var(--font-sans);
   font-size: var(--fs-sm);
-  color: var(--ink-muted);
-  letter-spacing: 0.01em;
-  flex-shrink: 0;
+  letter-spacing: -0.005em;
+  /* Slightly faded relative to the title — visible but secondary. */
+  opacity: 0.7;
+}
+
+.project-client {
+  align-self: flex-end;
+  text-align: right;
+  min-width: 0;
+}
+
+.project-link:hover {
+  filter: brightness(0.95);
+}
+
+/* ---------- A11y utility ---------- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ---------- About ----------

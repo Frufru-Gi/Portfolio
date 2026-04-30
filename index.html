@@ -63,44 +63,97 @@
 
     <!-- HERO -->
     <section class="hero">
+      <p class="hero-eyebrow">Hi, I'm Giulia.</p>
       <h1 class="hero-title">
         UX/UI Designer crafting clear, human interfaces for digital products.
       </h1>
       <p class="hero-meta">Based in Italy — Currently at Bending Spoons</p>
     </section>
 
-    <!-- WORK -->
-    <section id="work" class="work">
-      <h2 class="section-label">Selected work</h2>
-
-      <div class="work-grid">
-        <!-- Project 1 -->
-        <a href="#" class="project">
-          <div class="project-cover">Komoot Redesign</div>
-          <div class="project-meta">
-            <h3 class="project-title">Komoot Redesign</h3>
-            <p class="project-info">2025 · UX/UI · Growth</p>
-          </div>
-        </a>
-
-        <!-- Project 2 -->
-        <a href="#" class="project">
-          <div class="project-cover">Mosaic System</div>
-          <div class="project-meta">
-            <h3 class="project-title">Mosaic System</h3>
-            <p class="project-info">2024 · Design System</p>
-          </div>
-        </a>
-
-        <!-- Project 3 -->
-        <a href="#" class="project">
-          <div class="project-cover">Remini Reshot</div>
-          <div class="project-meta">
-            <h3 class="project-title">Remini Reshot</h3>
-            <p class="project-info">2025 · UX/UI · AI Feature</p>
-          </div>
-        </a>
+    <!-- MARQUEE — horizontal scrolling text bridging hero → work -->
+    <section class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span class="marquee-item">Selected Works</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
+        <span class="marquee-item">2026</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
+        <span class="marquee-item">Komoot</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
+        <span class="marquee-item">Mosaic</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
+        <span class="marquee-item">Remini</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
+        <!-- duplicate for seamless loop -->
+        <span class="marquee-item">Selected Works</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
+        <span class="marquee-item">2026</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
+        <span class="marquee-item">Komoot</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
+        <span class="marquee-item">Mosaic</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
+        <span class="marquee-item">Remini</span>
+        <span class="marquee-sep" aria-hidden="true">—</span>
       </div>
+    </section>
+
+    <!-- WORK — asymmetric 12-col grid, gareth-hughes-style cards.
+         Row 1: large + small. Row 2: small + large. Mobile: single col. -->
+    <section id="work" class="work" aria-labelledby="work-heading">
+      <h2 id="work-heading" class="visually-hidden">Selected work</h2>
+      <ul class="work-grid">
+        <li class="project project--lg" style="--cover: #2b1f4a">
+          <a href="#" class="project-link">
+            <div class="project-cover" aria-hidden="true"></div>
+            <div class="project-overlay">
+              <div class="project-overlay-left">
+                <h3 class="project-title">Komoot Redesign</h3>
+                <p class="project-category">UX/UI · Growth</p>
+              </div>
+              <p class="project-client">Bending Spoons</p>
+            </div>
+          </a>
+        </li>
+
+        <li class="project project--sm" style="--cover: #f1ece4; --ink-on-cover: #131211">
+          <a href="#" class="project-link">
+            <div class="project-cover" aria-hidden="true"></div>
+            <div class="project-overlay">
+              <div class="project-overlay-left">
+                <h3 class="project-title">Mosaic System</h3>
+                <p class="project-category">Design System</p>
+              </div>
+              <p class="project-client">Bending Spoons</p>
+            </div>
+          </a>
+        </li>
+
+        <li class="project project--sm" style="--cover: #131211">
+          <a href="#" class="project-link">
+            <div class="project-cover" aria-hidden="true"></div>
+            <div class="project-overlay">
+              <div class="project-overlay-left">
+                <h3 class="project-title">Remini Reshot</h3>
+                <p class="project-category">UX/UI · AI Feature</p>
+              </div>
+              <p class="project-client">Bending Spoons</p>
+            </div>
+          </a>
+        </li>
+
+        <li class="project project--lg" style="--cover: #c6b9a8; --ink-on-cover: #131211">
+          <a href="#" class="project-link">
+            <div class="project-cover" aria-hidden="true"></div>
+            <div class="project-overlay">
+              <div class="project-overlay-left">
+                <h3 class="project-title">Project 04</h3>
+                <p class="project-category">Coming soon</p>
+              </div>
+              <p class="project-client">—</p>
+            </div>
+          </a>
+        </li>
+      </ul>
     </section>
 
     <!-- FOOTER -->
