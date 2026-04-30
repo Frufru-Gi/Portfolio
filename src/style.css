@@ -432,7 +432,7 @@ body[data-menu="open"] .menu-social {
   bottom: var(--space-12);
   margin: 0;
   font-size: var(--fs-sm);
-  color: color-mix(in oklab, var(--menu-fg-muted) 35%, var(--menu-bg));
+  color: color-mix(in oklab, var(--menu-fg-muted) 55%, var(--menu-bg));
   z-index: 55;
   pointer-events: none;
   clip-path: inset(100% 0 0 0);
@@ -522,19 +522,23 @@ body[data-menu="open"] .menu-label {
 }
 
 /* --- Closing: text covered top → bottom ---
-   The bottom inset grows, eating the text from the top down. */
+   The TOP inset grows from 0 → 100%, so the top edge of the clip box
+   moves down through the glyphs. Visually the top of the text gets
+   eaten first, like a curtain dropping from above, mirroring the
+   saracinesca pulling up behind it. */
 body[data-menu="closing"] .menu-list a,
 body[data-menu="closing"] .menu-social a,
 body[data-menu="closing"] .menu-label-text,
 body[data-menu="closing"] .menu-copyright {
-  clip-path: inset(0 0 100% 0);
+  clip-path: inset(100% 0 0 0);
 }
 
 /* --- Reset to closed ---
-   At the end of "closing" the text is already invisible. JS flips to
-   "closed" (which has the default inset(100% 0 0 0)); we suppress the
-   transition so the mask snap from "bottom-inset" to "top-inset" is
-   instantaneous and never seen. */
+   Closing and closed share the same `inset(100% 0 0 0)` value, so no
+   visible snap occurs when the state flips. Disabling the transition
+   here guards against any mid-animation interruption (e.g. rapid
+   close-then-open) producing a partial re-interpolation back to the
+   closed default — we want the jump to be instantaneous. */
 body[data-menu="closed"] .menu-list a,
 body[data-menu="closed"] .menu-social a,
 body[data-menu="closed"] .menu-label-text,
@@ -733,6 +737,16 @@ body.is-menu-animating .menu-label {
    aspect for each card. */
 .work {
   padding-block: var(--space-16) var(--space-32);
+  /* Single source of truth for the card row height on desktop. Driving
+     it off `grid-auto-rows` (instead of per-card `aspect-ratio`)
+     guarantees all cards — large or small, row 1 or row 2 — resolve to
+     EXACTLY the same height; aspect-based sizing leaves a small delta
+     because the column gaps don't divide proportionally between an
+     8-col span and a 4-col span.
+     The 38vw curve is calibrated to match the height the LARGE
+     (8-col @ 8/5) cards used to have, so the whole grid feels as
+     generous as before instead of shrinking to the small-card height. */
+  --card-h: clamp(22rem, 38vw, 44rem);
 }
 
 @media (min-width: 768px) {
@@ -753,6 +767,7 @@ body.is-menu-animating .menu-label {
 @media (min-width: 768px) {
   .work-grid {
     grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: var(--card-h);
     gap: var(--space-6);
   }
 
@@ -773,6 +788,8 @@ body.is-menu-animating .menu-label {
 .project-link {
   position: relative;
   display: block;
+  /* Mobile: keep an aspect-ratio so single-column cards aren't squat
+     (they'd otherwise depend on the grid-auto-rows desktop value). */
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: 14px;
@@ -781,18 +798,30 @@ body.is-menu-animating .menu-label {
      `style="--ink-on-cover: …"` for cards with light covers. */
   color: var(--ink-on-cover, var(--menu-fg));
   text-decoration: none;
-  transition: filter var(--dur-med) var(--ease-out);
+  /* Hover lift + drop shadow (gareth-hughes pattern). Initial values
+     so the transition has something to interpolate from. */
+  transform: translateZ(0);
+  box-shadow: 0 0 0 0 rgb(0 0 0 / 0);
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+  will-change: transform;
+}
+
+.project-link:hover {
+  transform: scale(1.015);
+  box-shadow:
+    0 28px 60px -24px rgb(0 0 0 / 0.28),
+    0 8px 20px -10px rgb(0 0 0 / 0.18);
 }
 
 @media (min-width: 768px) {
-  /* lg span 8 + aspect 8/5 and sm span 4 + aspect 4/5 produce the
-     same row height — see comment on .work for the math. */
-  .project--lg .project-link {
-    aspect-ratio: 8 / 5;
-  }
-
-  .project--sm .project-link {
-    aspect-ratio: 4 / 5;
+  /* On desktop, the row height comes from `.work-grid grid-auto-rows`,
+     so the link just stretches to fill the cell — every card resolves
+     to the exact same physical height regardless of column span. */
+  .project-link {
+    height: 100%;
+    aspect-ratio: auto;
   }
 }
 
@@ -809,15 +838,24 @@ body.is-menu-animating .menu-label {
     transparent 35%
   );
   pointer-events: none;
+  /* Zoom on hover (the "image inside" effect). Card has overflow
+     hidden so the scaled cover is clipped to the rounded rect. */
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform var(--dur-rise) var(--ease-out);
+  will-change: transform;
+}
+
+.project-link:hover .project-cover {
+  transform: scale(1.06);
 }
 
 .project-overlay {
   position: absolute;
   inset: auto 0 0 0;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-6);
+  flex-direction: column;
+  gap: var(--space-1);
   padding: var(--space-6);
 }
 
@@ -825,16 +863,6 @@ body.is-menu-animating .menu-label {
   .project-overlay {
     padding: var(--space-8);
   }
-}
-
-.project-overlay-left {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  /* Allow flex children to shrink past their intrinsic content width
-     so long client names on the right can claim the room they need
-     (and the title side wraps to multiple lines if needed). */
-  min-width: 0;
 }
 
 .project-title {
@@ -846,32 +874,19 @@ body.is-menu-animating .menu-label {
   letter-spacing: -0.015em;
 }
 
-/* Slightly tighter title on small cards so it leaves more room for the
-   right-aligned client name within the narrower 4-col footprint. */
 @media (min-width: 768px) {
   .project--sm .project-title {
     font-size: var(--fs-lg);
   }
 }
 
-.project-category,
-.project-client {
+.project-category {
   margin: 0;
   font-family: var(--font-sans);
   font-size: var(--fs-sm);
   letter-spacing: -0.005em;
   /* Slightly faded relative to the title — visible but secondary. */
   opacity: 0.7;
-}
-
-.project-client {
-  align-self: flex-end;
-  text-align: right;
-  min-width: 0;
-}
-
-.project-link:hover {
-  filter: brightness(0.95);
 }
 
 /* ---------- A11y utility ---------- */
@@ -1149,6 +1164,13 @@ body.is-menu-animating .menu-label {
 
 .footer-links a:hover {
   color: var(--ink);
+}
+
+/* Copyright — mirrored pattern of `.menu-copyright`, but blended toward
+   the LIGHT page bg instead of the dark menu bg. Same 55% mix of the
+   muted ink so the footer has the same low-contrast feel the menu has. */
+.site-footer p {
+  color: color-mix(in oklab, var(--ink-muted) 55%, var(--bg));
 }
 
 /* Mobile + tablet: stack the footer vertically and reorder so the layout
