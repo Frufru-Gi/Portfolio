@@ -142,15 +142,17 @@ const slideshow = document.querySelector("[data-slideshow]");
 if (slideshow) {
   const track = slideshow.querySelector("[data-slideshow-track]");
   const slides = track ? track.querySelectorAll(".slide") : [];
-  const prevBtn = slideshow.querySelector("[data-slideshow-prev]");
-  const nextBtn = slideshow.querySelector("[data-slideshow-next]");
   const currentEl = slideshow.querySelector("[data-slideshow-current]");
   const totalEl = slideshow.querySelector("[data-slideshow-total]");
+  // INK pattern: a single text label next to the counter shows the
+  // ACTIVE slide's title. Auto-updates every time we advance.
+  const currentTitleEl = slideshow.querySelector(
+    "[data-slideshow-current-title]"
+  );
 
   if (track && slides.length > 0) {
     const total = slides.length;
     const AUTO_MS = 5000;
-    let current = 0;
     let autoTimer = 0;
 
     const reducedMotion = window.matchMedia(
@@ -159,23 +161,77 @@ if (slideshow) {
 
     if (totalEl) totalEl.textContent = String(total);
 
+    // --- Infinite loop via clones ---
+    // Duplicate the first slide at the end and the last slide at the
+    // start. The track then has `total + 2` items. Normal navigation
+    // uses track positions 1..total (real slides). When next() crosses
+    // the last clone (position total+1, visually = slide 0) or prev()
+    // crosses the first clone (position 0, visually = last slide), we
+    // let the slide animation play, then on transitionend instantly
+    // snap (transition: none) to the matching real slide. The jump is
+    // invisible because the two frames land on the exact same image.
+    const firstClone = slides[0].cloneNode(true);
+    const lastClone = slides[total - 1].cloneNode(true);
+    firstClone.setAttribute("aria-hidden", "true");
+    lastClone.setAttribute("aria-hidden", "true");
+    firstClone.dataset.slideClone = "first";
+    lastClone.dataset.slideClone = "last";
+    track.insertBefore(lastClone, slides[0]);
+    track.appendChild(firstClone);
+
+    const slideCount = total + 2;
+    track.style.setProperty("--slide-count", String(slideCount));
+
+    // Track position runs 0..total+1 in the EXTENDED track.
+    // Position 0 = lastClone, positions 1..total = real slides (in order),
+    // position total+1 = firstClone. Start at the first real slide.
+    let trackPos = 1;
+
+    // User-facing index (0..total-1) mapped from trackPos.
+    const userIndexFromTrackPos = (pos) => {
+      if (pos === 0) return total - 1; // lastClone visually = last real
+      if (pos === total + 1) return 0; // firstClone visually = first real
+      return pos - 1;
+    };
+
     const applyCurrent = () => {
-      track.style.setProperty("--slide-index", String(current));
-      if (currentEl) currentEl.textContent = String(current + 1);
+      track.style.setProperty("--track-position", String(trackPos));
+      const userIndex = userIndexFromTrackPos(trackPos);
+      if (currentEl) currentEl.textContent = String(userIndex + 1);
+      if (currentTitleEl) {
+        const title = slides[userIndex].dataset.slideTitle || "";
+        currentTitleEl.textContent = title;
+      }
       slides.forEach((slide, i) => {
-        // Mark inactive slides as inert-ish for screen readers & keyboard.
-        slide.toggleAttribute("aria-hidden", i !== current);
+        slide.toggleAttribute("aria-hidden", i !== userIndex);
       });
     };
 
-    const goTo = (index) => {
-      // Wrap around at both ends.
-      current = ((index % total) + total) % total;
+    // When we land on a clone, snap instantly (no transition) to the
+    // matching REAL slide so the loop continues seamlessly the next
+    // time the user (or auto-advance) navigates.
+    track.addEventListener("transitionend", (e) => {
+      if (e.propertyName !== "transform") return;
+      if (trackPos === total + 1 || trackPos === 0) {
+        track.style.transition = "none";
+        trackPos = trackPos === 0 ? total : 1;
+        applyCurrent();
+        // Force reflow so the "transition: none" is actually committed
+        // before we re-enable the transition — otherwise the next
+        // keyframe would interpolate from the old position.
+        void track.offsetHeight;
+        track.style.transition = "";
+      }
+    });
+
+    const next = () => {
+      trackPos += 1;
       applyCurrent();
     };
-
-    const next = () => goTo(current + 1);
-    const prev = () => goTo(current - 1);
+    const prev = () => {
+      trackPos -= 1;
+      applyCurrent();
+    };
 
     const startAuto = () => {
       if (reducedMotion) return;
@@ -190,24 +246,49 @@ if (slideshow) {
       }
     }
 
-    if (prevBtn) {
-      prevBtn.addEventListener("click", () => {
-        prev();
-        // Any manual interaction resets the auto-advance clock so the
-        // next transition doesn't feel abrupt right after a click.
-        startAuto();
-      });
-    }
-    if (nextBtn) {
-      nextBtn.addEventListener("click", () => {
-        next();
-        startAuto();
-      });
-    }
-
     // Pause on hover so viewers can read a slide they stopped on.
     slideshow.addEventListener("pointerenter", stopAuto);
     slideshow.addEventListener("pointerleave", startAuto);
+
+    // --- Touch swipe (mobile) ---
+    // Pointer Events unify mouse/touch/pen. We only act when the gesture
+    // is clearly HORIZONTAL (deltaX exceeds threshold AND is greater
+    // than deltaY) so the user can still scroll the page vertically
+    // by dragging within the slideshow area.
+    const SWIPE_THRESHOLD = 50;
+    let swipeStartX = 0;
+    let swipeStartY = 0;
+    let swipeTracking = false;
+
+    const viewport =
+      slideshow.querySelector(".slideshow-viewport") || slideshow;
+
+    viewport.addEventListener("pointerdown", (e) => {
+      // Ignore non-primary pointers (e.g. right click, second finger).
+      if (!e.isPrimary) return;
+      swipeStartX = e.clientX;
+      swipeStartY = e.clientY;
+      swipeTracking = true;
+      stopAuto();
+    });
+
+    const endSwipe = (e) => {
+      if (!swipeTracking) return;
+      swipeTracking = false;
+      const dx = e.clientX - swipeStartX;
+      const dy = e.clientY - swipeStartY;
+      if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) next();
+        else prev();
+      }
+      startAuto();
+    };
+
+    viewport.addEventListener("pointerup", endSwipe);
+    viewport.addEventListener("pointercancel", () => {
+      swipeTracking = false;
+      startAuto();
+    });
 
     // Pause when the tab is hidden to avoid burning cycles (and so the
     // carousel isn't 12 slides ahead when they return).
@@ -217,6 +298,8 @@ if (slideshow) {
     });
 
     // Keyboard nav when focus is on a control inside the slideshow.
+    // The UI has no visible arrows (INK pattern), but ← / → still work
+    // for accessibility when the slideshow itself has focus.
     slideshow.addEventListener("keydown", (e) => {
       if (e.key === "ArrowLeft") {
         prev();

@@ -632,16 +632,24 @@ body.is-menu-animating .menu-label {
    breath, statement anchored at the foot of the screen, with the work
    grid revealed only on scroll. */
 .hero {
-  min-height: calc(100vh - var(--header-h));
+  /* Leave ~15vh of room at the bottom of the first viewport so the
+     top of the slideshow "peeks" into view — a visual cue that there's
+     more to scroll. Using `svh` (small viewport height) on supporting
+     browsers keeps the reveal consistent on mobile where the URL bar
+     otherwise eats into 100vh. */
+  min-height: calc(100vh - var(--header-h) - 15vh);
+  min-height: calc(100svh - var(--header-h) - 15vh);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding-block: var(--space-16) var(--space-24);
+  /* Tight bottom padding pulls the headline closer to the slideshow
+     peek below, reinforcing the visual "scroll down" cue. */
+  padding-block: var(--space-16) var(--space-8);
 }
 
 @media (min-width: 768px) {
   .hero {
-    padding-block: var(--space-24) var(--space-32);
+    padding-block: var(--space-24) var(--space-12);
   }
 }
 
@@ -732,71 +740,6 @@ body.is-menu-animating .menu-label {
   border-bottom: 1px solid var(--line);
 }
 
-/* ---------- Marquee — bridges the hero to the work grid ----------
-   Full-bleed horizontal scroller. Track is duplicated 1:1 in the HTML
-   so the keyframe slides exactly -50% for a seamless loop. */
-.marquee {
-  width: 100%;
-  overflow: hidden;
-  padding-block: var(--space-12);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-@media (min-width: 768px) {
-  .marquee {
-    padding-block: var(--space-16);
-  }
-}
-
-.marquee-track {
-  display: flex;
-  align-items: center;
-  gap: var(--space-12);
-  width: max-content;
-  white-space: nowrap;
-  animation: marquee-scroll 60s linear infinite;
-  will-change: transform;
-}
-
-@media (min-width: 768px) {
-  .marquee-track {
-    gap: var(--space-16);
-  }
-}
-
-.marquee-item,
-.marquee-sep {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: clamp(2.25rem, 6vw + 0.5rem, 5.5rem);
-  line-height: 1;
-  letter-spacing: -0.025em;
-  flex-shrink: 0;
-}
-
-.marquee-item {
-  color: var(--ink);
-}
-
-.marquee-sep {
-  color: var(--ink-muted);
-}
-
-@keyframes marquee-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    /* -50% works because the track duplicates its content exactly once */
-    transform: translateX(-50%);
-  }
-}
-
-/* Pause on hover so visitors can read individual items if curious */
-.marquee:hover .marquee-track {
-  animation-play-state: paused;
-}
 
 /* ---------- Work — gareth-hughes asymmetric 12-col gallery ----------
    Row 1: lg (8 col) + sm (4 col). Row 2: sm (4 col) + lg (8 col).
@@ -971,7 +914,9 @@ body.is-menu-animating .menu-label {
    every 5s, paused on hover or when the tab is hidden. */
 .work-slideshow {
   width: 100%;
-  padding-inline: var(--header-pad);
+  /* Full-bleed: no horizontal padding so the viewport can run
+     edge-to-edge. Controls are padded back into the content
+     column below. */
   padding-block: var(--space-8) var(--space-24);
 }
 
@@ -985,12 +930,19 @@ body.is-menu-animating .menu-label {
   position: relative;
   width: 100%;
   overflow: hidden;
-  border-radius: 14px;
-  /* Cinematic aspect, capped so very tall windows don't produce a
-     slide that exceeds the viewport vertically. */
-  aspect-ratio: 16 / 10;
+  /* Mobile: taller 4:5 portrait-ish ratio so the slide has visual
+     presence on narrow screens (16:10 would be too squat at phone
+     widths — only ~230px tall). */
+  aspect-ratio: 4 / 5;
   max-height: 82vh;
   background: var(--surface);
+}
+
+@media (min-width: 768px) {
+  .slideshow-viewport {
+    /* Desktop: cinematic 16:10 — reads like a wide banner. */
+    aspect-ratio: 16 / 10;
+  }
 }
 
 .slideshow-track {
@@ -999,16 +951,20 @@ body.is-menu-animating .menu-label {
   margin: 0;
   padding: 0;
   height: 100%;
-  /* 4 slides side by side — each is 25% of the track so the viewport
-     shows exactly one at a time. */
-  width: 400%;
-  transform: translateX(calc(var(--slide-index, 0) * -25%));
+  /* Track is sized dynamically via --slide-count (set by JS after
+     cloning the first + last slides for seamless infinite loop).
+     --track-position is the index in the EXTENDED track (includes
+     clones), not the user-facing slide number. */
+  width: calc(var(--slide-count, 1) * 100%);
+  transform: translateX(
+    calc(var(--track-position, 0) * (-100% / var(--slide-count, 1)))
+  );
   transition: transform 0.85s cubic-bezier(0.77, 0, 0.43, 0.99);
   will-change: transform;
 }
 
 .slide {
-  flex: 0 0 25%;
+  flex: 0 0 calc(100% / var(--slide-count, 1));
   position: relative;
   height: 100%;
   background: var(--cover, var(--surface));
@@ -1041,85 +997,44 @@ body.is-menu-animating .menu-label {
   pointer-events: none;
 }
 
-.slide-caption {
-  position: absolute;
-  left: var(--space-8);
-  right: var(--space-8);
-  bottom: var(--space-8);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-@media (min-width: 768px) {
-  .slide-caption {
-    left: var(--space-12);
-    right: var(--space-12);
-    bottom: var(--space-12);
-  }
-}
-
-.slide-title {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: clamp(1.5rem, 3vw + 0.5rem, 3rem);
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-.slide-category {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: clamp(var(--fs-sm), 0.8vw + 0.5rem, var(--fs-md));
-  letter-spacing: -0.005em;
-  opacity: 0.8;
-}
-
-/* --- Controls row: prev / counter / next --- */
+/* --- Meta row (INK pattern): current project name on the left,
+   step counter on the right. Sits ABOVE the slide, auto-updates with
+   the active slide; there are no visible prev/next arrows —
+   navigation is purely auto-advance (plus keyboard/touch via JS). */
 .slideshow-controls {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: var(--space-6);
-  margin-top: var(--space-6);
+  padding-inline: var(--header-pad);
+  margin-bottom: var(--space-3);
 }
 
 @media (min-width: 768px) {
   .slideshow-controls {
-    margin-top: var(--space-8);
+    margin-bottom: var(--space-4);
   }
 }
 
-.slideshow-nav {
-  border: none;
-  background: none;
-  padding: var(--space-2) var(--space-4);
+.slideshow-caption-current {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   color: var(--ink);
-  cursor: pointer;
-  transition: opacity var(--dur-fast) var(--ease-out);
-}
-
-.slideshow-nav:hover {
-  opacity: 0.6;
-}
-
-.slideshow-nav:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-  border-radius: 2px;
+  letter-spacing: -0.005em;
 }
 
 .slideshow-counter {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--fs-lg);
-  color: var(--ink);
-  letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  color: var(--ink-muted);
+  letter-spacing: -0.005em;
   font-variant-numeric: tabular-nums;
+}
+
+.slideshow-counter-sep {
+  margin: 0 var(--space-1);
 }
 
 .slideshow-counter-sep {
