@@ -936,6 +936,11 @@ body.is-menu-animating .menu-label {
   aspect-ratio: 4 / 5;
   max-height: 82vh;
   background: var(--surface);
+  /* Reserve vertical pan for the browser (normal page scroll) and
+     keep horizontal gestures for our JS swipe handler — without this,
+     mobile browsers consume horizontal pans for native scrolling and
+     our pointerdown/up never registers as a swipe. */
+  touch-action: pan-y;
 }
 
 /* Hide the native cursor on the slideshow for hover-capable pointers
