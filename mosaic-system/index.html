@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mosaic System — Giulia Frumento</title>
+    <meta
+      name="description"
+      content="Mosaic System — a design-system project by Giulia Frumento at Bending Spoons."
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body data-menu="closed">
+    <script>
+      (function () {
+        try {
+          var ts = parseInt(
+            sessionStorage.getItem("menu-transition-nav") || "0",
+            10
+          );
+          if (!ts) return;
+          sessionStorage.removeItem("menu-transition-nav");
+          if (Date.now() - ts > 3000) return;
+        } catch (_) {
+          return;
+        }
+
+        var body = document.body;
+        body.dataset.menu = "open";
+        body.classList.add("is-menu-animating");
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            body.dataset.menu = "closing";
+            setTimeout(function () {
+              body.dataset.menu = "closed";
+              body.classList.remove("is-menu-animating");
+            }, 700);
+          });
+        });
+      })();
+    </script>
+
+    <header class="site-header">
+      <a href="/" class="logo">Giulia Frumento</a>
+      <button
+        class="menu-label"
+        type="button"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <span class="menu-label-text">Menu</span>
+      </button>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="site-menu"
+      >
+        <span class="menu-toggle-text" aria-hidden="true">Back</span>
+        <span class="menu-toggle-dot" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <nav id="site-menu" class="site-menu" aria-hidden="true">
+      <ul class="menu-list">
+        <li><a href="/" data-menu-link>Home</a></li>
+        <li><a href="/work/" data-menu-link>Work</a></li>
+        <li><a href="/about/" data-menu-link>About</a></li>
+        <li>
+          <a href="mailto:giuliashara.frumento@gmail.com" data-menu-link
+            >Contact</a
+          >
+        </li>
+      </ul>
+      <ul class="menu-social">
+        <li>
+          <a
+            href="https://www.linkedin.com/in/gs-frumento/"
+            target="_blank"
+            rel="noopener"
+            data-menu-link
+            >LinkedIn</a
+          >
+        </li>
+      </ul>
+      <p class="menu-copyright">
+        © 2026 Giulia Shara Frumento. All rights reserved.
+      </p>
+    </nav>
+
+    <section class="case-hero">
+      <p class="case-eyebrow">2024 · Design System · Bending Spoons</p>
+      <h1 class="case-title">Mosaic System</h1>
+      <p class="case-lead">
+        Unifying how a portfolio of consumer apps looks, behaves, and
+        scales — one shared design system, tightly coupled to the code it
+        ships with.
+      </p>
+    </section>
+
+    <section class="case-meta">
+      <dl class="case-meta-list">
+        <div class="case-meta-row">
+          <dt>Year</dt>
+          <dd>2024</dd>
+        </div>
+        <div class="case-meta-row">
+          <dt>Role</dt>
+          <dd>Product Designer</dd>
+        </div>
+        <div class="case-meta-row">
+          <dt>Duration</dt>
+          <dd>Ongoing</dd>
+        </div>
+        <div class="case-meta-row">
+          <dt>Tools</dt>
+          <dd>Figma, Tokens Studio, Storybook</dd>
+        </div>
+      </dl>
+    </section>
+
+    <figure class="case-cover">
+      <div
+        class="case-cover-media"
+        style="--cover: #f1ece4"
+        aria-hidden="true"
+      ></div>
+    </figure>
+
+    <section class="case-section">
+      <h2 class="case-section-title">The challenge</h2>
+      <div class="case-section-body">
+        <p>
+          Lorem ipsum dolor sit amet. Every app had its own version of the
+          same button, the same list row, the same paywall. Teams were
+          re-inventing components in parallel, and polish was wildly
+          inconsistent between products even when they shipped the same
+          feature.
+        </p>
+        <p>
+          We needed a shared library that was opinionated enough to bring
+          real consistency, and flexible enough that no team would feel it
+          slowed them down.
+        </p>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <h2 class="case-section-title">Approach</h2>
+      <div class="case-section-body">
+        <p>
+          Mosaic was built from a small token layer and a handful of core
+          primitives first. We resisted the urge to ship every component
+          on day one — instead we matched the library to the real
+          components the apps were already leaning on, and grew it in
+          lockstep with product work.
+        </p>
+        <p>
+          Figma variables and design tokens were generated from the same
+          source so engineering and design stayed in sync automatically.
+          Changing a radius in Figma changed it in production by Friday.
+        </p>
+      </div>
+    </section>
+
+    <section class="case-gallery">
+      <figure class="case-image">
+        <div
+          class="case-image-media"
+          style="--cover: #e7dec7"
+          aria-hidden="true"
+        ></div>
+      </figure>
+      <figure class="case-image">
+        <div
+          class="case-image-media"
+          style="--cover: #faf5e8"
+          aria-hidden="true"
+        ></div>
+      </figure>
+      <figure class="case-image case-image--wide">
+        <div
+          class="case-image-media"
+          style="--cover: #f1ece4"
+          aria-hidden="true"
+        ></div>
+      </figure>
+    </section>
+
+    <section class="case-section">
+      <h2 class="case-section-title">Outcome</h2>
+      <div class="case-section-body">
+        <p>
+          Mosaic is now the default starting point for new screens across
+          the portfolio. Teams ship faster, fewer one-off components get
+          built, and the visual layer finally gets the same iteration
+          rigor the codebase does.
+        </p>
+      </div>
+    </section>
+
+    <section class="case-next">
+      <a href="/remini-reshot/" class="case-next-link" data-menu-link>
+        <span class="case-next-label">Next project</span>
+        <span class="case-next-title"
+          >Remini Reshot<span class="case-next-arrow" aria-hidden="true"
+            >→</span
+          ></span
+        >
+      </a>
+      <a href="/work/" class="case-next-secondary" data-menu-link>
+        View projects
+      </a>
+    </section>
+
+    <footer class="site-footer">
+      <p>© 2026 Giulia Shara Frumento. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="mailto:giuliashara.frumento@gmail.com"
+          >giuliashara.frumento@gmail.com</a
+        >
+        <a
+          href="https://www.linkedin.com/in/gs-frumento/"
+          target="_blank"
+          rel="noopener"
+          >LinkedIn</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>

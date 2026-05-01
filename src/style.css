@@ -176,6 +176,11 @@ a {
 .about,
 .about-hero,
 .career,
+.case-hero,
+.case-meta,
+.case-section,
+.case-gallery,
+.case-next,
 .site-footer {
   width: 100%;
   padding-inline: var(--header-pad);
@@ -1143,6 +1148,321 @@ body.is-menu-animating .menu-label {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ---------- Case study pages ----------
+   Reading-first template for individual project write-ups. Built
+   around a narrow prose column with occasional full-bleed images.
+   All sections use the global `padding-inline: var(--header-pad)`
+   so the outer margins line up with the rest of the site; inner
+   prose columns clamp their own max-width. */
+.case-hero {
+  padding-block: var(--space-16) var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .case-hero {
+    padding-block: var(--space-24) var(--space-12);
+  }
+}
+
+.case-eyebrow {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  text-transform: none;
+}
+
+.case-title {
+  margin: 0 0 var(--space-8);
+  font-family: var(--font-serif);
+  font-size: var(--fs-display);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+  text-wrap: balance;
+  max-width: 22ch;
+}
+
+.case-lead {
+  margin: 0;
+  max-width: 54ch;
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* Meta grid — Year / Role / Duration / Tools. On desktop it's a
+   four-column row of `dt` (muted label) above `dd` (value). Mobile
+   stacks to a 2-col grid so the labels stay compact. */
+.case-meta {
+  padding-block: var(--space-8);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+@media (min-width: 768px) {
+  .case-meta {
+    padding-block: var(--space-12);
+  }
+}
+
+.case-meta-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6) var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .case-meta-list {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+.case-meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.case-meta-row dt {
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+  letter-spacing: 0;
+}
+
+.case-meta-row dd {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+
+/* Full-bleed cover hero between the meta + the first body section.
+   Placeholder uses the inline --cover color; swap the inner div for
+   an <img>/<video> later. Same 4/5 (mobile) / 16/10 (desktop)
+   proportions the home slideshow uses, for visual continuity. */
+.case-cover {
+  margin: 0;
+  padding-block: var(--space-8) var(--space-12);
+}
+
+@media (min-width: 768px) {
+  .case-cover {
+    padding-block: var(--space-12) var(--space-16);
+  }
+}
+
+.case-cover-media {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: var(--cover, var(--surface));
+  border-radius: 8px;
+}
+
+@media (min-width: 768px) {
+  .case-cover-media {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+/* Body section: small sans h2 above a readable prose column. */
+.case-section {
+  padding-block: var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .case-section {
+    padding-block: var(--space-12);
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+}
+
+.case-section-title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  text-transform: none;
+}
+
+@media (min-width: 768px) {
+  .case-section-title {
+    margin: 0;
+  }
+}
+
+.case-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 60ch;
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.case-section-body p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* Gallery — 2-col grid with an optional wide full-row item.
+   Placeholders use --cover inline color; each image is a figure so
+   a future <figcaption> can live alongside an <img>. */
+.case-gallery {
+  padding-block: var(--space-4) var(--space-12);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .case-gallery {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    padding-block: var(--space-6) var(--space-16);
+  }
+
+  .case-image--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.case-image {
+  margin: 0;
+}
+
+.case-image-media {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--cover, var(--surface));
+  border-radius: 8px;
+}
+
+.case-image--wide .case-image-media {
+  aspect-ratio: 16 / 9;
+}
+
+/* Next project + "View projects" link at the bottom. Styled as big
+   type with a subtle hover state — no thumbnail / cover preview, as
+   per brief. */
+.case-next {
+  padding-block: var(--space-16) var(--space-24);
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .case-next {
+    padding-block: var(--space-24) var(--space-32);
+    flex-direction: row;
+    justify-content: space-between;
+    /* Pin the pill button to the bottom edge of the Next project
+       block on the right — their baselines line up along the bottom. */
+    align-items: flex-end;
+    gap: var(--space-12);
+  }
+
+  /* Visual order on desktop: View projects on the LEFT, Next project
+     on the RIGHT. We keep the DOM order as-is (primary link first) so
+     screen readers / keyboard tab land on the big Next project first,
+     then reorder visually via flex `order`. Mobile keeps natural
+     top-to-bottom DOM order. */
+  .case-next-secondary {
+    order: -1;
+  }
+}
+
+.case-next-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: inherit;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.case-next-link:hover {
+  opacity: 0.7;
+}
+
+.case-next-label {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+  letter-spacing: 0;
+}
+
+.case-next-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4.5vw + 0.5rem, 4rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.case-next-arrow {
+  /* Same arrow glyph styling as the slider's prev/next zones (sans,
+     thin weight, no letter-spacing) — sized to 1em so it scales with
+     the title's own font-size. No text-shadow here since the title
+     already sits on the page's clean background. */
+  display: inline-block;
+  margin-left: var(--space-3);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 1em;
+  line-height: 1;
+  letter-spacing: 0;
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.case-next-link:hover .case-next-arrow {
+  transform: translateX(6px);
+}
+
+/* Pill button: thin stroke by default, fills on hover (bg → ink,
+   text → inverse). Self-contained so the width hugs the label. */
+.case-next-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.case-next-secondary:hover {
+  background: var(--ink);
+  /* Use --bg rather than a hardcoded white so dark mode inverts
+     cleanly (bg becomes near-black → text contrasts correctly). */
+  color: var(--bg);
 }
 
 /* ---------- About ----------
