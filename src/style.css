@@ -773,14 +773,14 @@ body.is-menu-animating .menu-label {
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-6);
+  gap: var(--space-4);
 }
 
 @media (min-width: 768px) {
   .work-grid {
     grid-template-columns: repeat(12, 1fr);
     grid-auto-rows: var(--card-h);
-    gap: var(--space-6);
+    gap: var(--space-4);
   }
 
   .project--lg {
@@ -804,7 +804,7 @@ body.is-menu-animating .menu-label {
      (they'd otherwise depend on the grid-auto-rows desktop value). */
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--cover, var(--surface));
   /* Default text color over covers. Per-card override via
      `style="--ink-on-cover: …"` for cards with light covers. The
@@ -823,7 +823,7 @@ body.is-menu-animating .menu-label {
 }
 
 .project-link:hover {
-  transform: scale(1.015);
+  transform: scale(1.035);
   box-shadow:
     0 28px 60px -24px rgb(0 0 0 / 0.28),
     0 8px 20px -10px rgb(0 0 0 / 0.18);
