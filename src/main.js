@@ -152,7 +152,7 @@ if (slideshow) {
 
   if (track && slides.length > 0) {
     const total = slides.length;
-    const AUTO_MS = 5000;
+    const AUTO_MS = 3500;
     let autoTimer = 0;
 
     const reducedMotion = window.matchMedia(
@@ -207,28 +207,33 @@ if (slideshow) {
       });
     };
 
-    // When we land on a clone, snap instantly (no transition) to the
-    // matching REAL slide so the loop continues seamlessly the next
-    // time the user (or auto-advance) navigates.
-    track.addEventListener("transitionend", (e) => {
-      if (e.propertyName !== "transform") return;
-      if (trackPos === total + 1 || trackPos === 0) {
-        track.style.transition = "none";
-        trackPos = trackPos === 0 ? total : 1;
-        applyCurrent();
-        // Force reflow so the "transition: none" is actually committed
-        // before we re-enable the transition — otherwise the next
-        // keyframe would interpolate from the old position.
-        void track.offsetHeight;
-        track.style.transition = "";
-      }
-    });
+    // Jump trackPos to a new position with NO transition. Used at the
+    // clone-wrap boundary so the carousel returns to the matching real
+    // slide without a visible animation jolt.
+    const snapTo = (pos) => {
+      track.style.transition = "none";
+      trackPos = pos;
+      applyCurrent();
+      // Force reflow so the transition disable is committed BEFORE we
+      // re-enable it — otherwise the next interpolation starts from
+      // the stale pre-snap position.
+      void track.offsetHeight;
+      track.style.transition = "";
+    };
 
+    // When next() or prev() are called while we're already parked on a
+    // clone (e.g. after a previous navigation left us at trackPos =
+    // total+1 or 0), snap back to the matching real slide FIRST, then
+    // proceed with the increment. This keeps trackPos bounded and
+    // avoids the counter drifting past `total` — rapid nav no longer
+    // depends on `transitionend` firing for correctness.
     const next = () => {
+      if (trackPos === total + 1) snapTo(1);
       trackPos += 1;
       applyCurrent();
     };
     const prev = () => {
+      if (trackPos === 0) snapTo(total);
       trackPos -= 1;
       applyCurrent();
     };
@@ -249,9 +254,13 @@ if (slideshow) {
     // Pause on hover so viewers can read a slide they stopped on.
     // On leave, advance one step RIGHT AWAY (in addition to restarting
     // the interval) so the carousel visibly "resumes" instead of
-    // sitting on the same slide for another full 5s.
-    slideshow.addEventListener("pointerenter", stopAuto);
-    slideshow.addEventListener("pointerleave", () => {
+    // sitting on the same slide for another full cycle. Listeners go
+    // on the VIEWPORT (the slide area) rather than on the outer
+    // .work-slideshow section, so the surrounding padding doesn't
+    // count as a hover.
+    const hoverEl = slideshow.querySelector(".slideshow-viewport") || slideshow;
+    hoverEl.addEventListener("pointerenter", stopAuto);
+    hoverEl.addEventListener("pointerleave", () => {
       next();
       startAuto();
     });
