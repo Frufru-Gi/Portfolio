@@ -780,7 +780,7 @@ body.is-menu-animating .menu-label {
   .work-grid {
     grid-template-columns: repeat(12, 1fr);
     grid-auto-rows: var(--card-h);
-    gap: var(--space-4);
+    gap: var(--space-6);
   }
 
   .project--lg {
@@ -823,7 +823,7 @@ body.is-menu-animating .menu-label {
 }
 
 .project-link:hover {
-  transform: scale(1.035);
+  transform: scale(1.025);
   box-shadow:
     0 28px 60px -24px rgb(0 0 0 / 0.28),
     0 8px 20px -10px rgb(0 0 0 / 0.18);
