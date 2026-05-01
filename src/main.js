@@ -247,8 +247,80 @@ if (slideshow) {
     }
 
     // Pause on hover so viewers can read a slide they stopped on.
+    // On leave, advance one step RIGHT AWAY (in addition to restarting
+    // the interval) so the carousel visibly "resumes" instead of
+    // sitting on the same slide for another full 5s.
     slideshow.addEventListener("pointerenter", stopAuto);
-    slideshow.addEventListener("pointerleave", startAuto);
+    slideshow.addEventListener("pointerleave", () => {
+      next();
+      startAuto();
+    });
+
+    // --- Custom cursor (desktop only) ---
+    // Three zones inside the viewport, driven by the pointer's X
+    // position (left 25% → prev arrow, right 25% → next arrow, middle
+    // 50% → "View project"). Cursor chip follows the pointer, content
+    // swaps with the zone. Clicks in the side zones call prev/next and
+    // preempt the slide-link navigation; clicks in the middle zone let
+    // the link fire normally (future case-study page).
+    const cursorEl = slideshow.querySelector("[data-slideshow-cursor]");
+    const viewportEl = slideshow.querySelector(".slideshow-viewport");
+    const hasFinePointer = window.matchMedia(
+      "(hover: hover) and (pointer: fine)"
+    ).matches;
+    if (cursorEl && viewportEl && hasFinePointer) {
+      const LEFT_ZONE_END = 0.25;
+      const RIGHT_ZONE_START = 0.75;
+
+      const zoneFor = (clientX) => {
+        const rect = viewportEl.getBoundingClientRect();
+        const relX = (clientX - rect.left) / rect.width;
+        if (relX < LEFT_ZONE_END) return "prev";
+        if (relX > RIGHT_ZONE_START) return "next";
+        return "view";
+      };
+
+      const labelFor = (zone) => {
+        if (zone === "prev") return "←";
+        if (zone === "next") return "→";
+        return "View project";
+      };
+
+      const setPos = (x, y) => {
+        cursorEl.style.setProperty("--cursor-x", x + "px");
+        cursorEl.style.setProperty("--cursor-y", y + "px");
+      };
+
+      const setZone = (zone) => {
+        cursorEl.dataset.zone = zone;
+        cursorEl.textContent = labelFor(zone);
+      };
+
+      viewportEl.addEventListener("pointerenter", (e) => {
+        setPos(e.clientX, e.clientY);
+        setZone(zoneFor(e.clientX));
+        cursorEl.classList.add("is-active");
+      });
+      viewportEl.addEventListener("pointerleave", () => {
+        cursorEl.classList.remove("is-active");
+      });
+      viewportEl.addEventListener("pointermove", (e) => {
+        setPos(e.clientX, e.clientY);
+        setZone(zoneFor(e.clientX));
+      });
+
+      // Intercept clicks in the side zones for prev/next. Middle-zone
+      // clicks fall through to the slide-link so future case-study
+      // pages load naturally.
+      viewportEl.addEventListener("click", (e) => {
+        const zone = zoneFor(e.clientX);
+        if (zone === "view") return;
+        e.preventDefault();
+        if (zone === "prev") prev();
+        else next();
+        startAuto();
+      });
+    }
 
     // --- Touch swipe (mobile) ---
     // Pointer Events unify mouse/touch/pen. We only act when the gesture

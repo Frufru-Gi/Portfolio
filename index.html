@@ -141,6 +141,18 @@
       </div>
 
       <div class="slideshow-viewport">
+        <!-- Custom cursor chip shown only on hover-capable devices.
+             JS moves it to follow the pointer and fades it in on
+             enter / out on leave. Pointer-events: none so it can't
+             block the underlying slide-link click. -->
+        <div
+          class="slideshow-cursor"
+          aria-hidden="true"
+          data-slideshow-cursor
+        >
+          View project
+        </div>
+
         <ol class="slideshow-track" data-slideshow-track>
           <!-- The active project's name is surfaced below the slideshow
                (.slideshow-controls), not overlaid on the media. Each

@@ -938,6 +938,18 @@ body.is-menu-animating .menu-label {
   background: var(--surface);
 }
 
+/* Hide the native cursor on the slideshow for hover-capable pointers
+   so the custom "View project" chip is the only affordance. Applied
+   to the viewport AND all its interactive children (the <a> inside
+   each slide) so the system cursor doesn't come back on hover over
+   the link. */
+@media (hover: hover) and (pointer: fine) {
+  .slideshow-viewport,
+  .slideshow-viewport .slide-link {
+    cursor: none;
+  }
+}
+
 @media (min-width: 768px) {
   .slideshow-viewport {
     /* Desktop: cinematic 16:10 — reads like a wide banner. */
@@ -995,6 +1007,71 @@ body.is-menu-animating .menu-label {
     transparent 45%
   );
   pointer-events: none;
+}
+
+/* --- Custom "View project" cursor (INK pattern) ---
+   A small black circle with the label inside that follows the mouse
+   while the user hovers the slideshow on desktop. JS sets --cursor-x
+   and --cursor-y from pointermove; the .is-active class (added on
+   pointerenter, removed on pointerleave) handles the fade + scale-in. */
+.slideshow-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--on-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-align: center;
+  pointer-events: none;
+  z-index: 80;
+  opacity: 0;
+  /* translate3d forces a compositor layer so the follow-on-pointer is
+     smooth; scale(0) on initial state for the "pop in" enter. */
+  transform: translate3d(var(--cursor-x, 0), var(--cursor-y, 0), 0)
+    translate(-50%, -50%) scale(0.5);
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+  will-change: transform, opacity;
+}
+
+.slideshow-cursor.is-active {
+  opacity: 1;
+  transform: translate3d(var(--cursor-x, 0), var(--cursor-y, 0), 0)
+    translate(-50%, -50%) scale(1);
+}
+
+/* In the left/right hot zones the "chip" becomes just a big arrow
+   glyph — drop the black circle, pump the size, and lean on a soft
+   drop-shadow for legibility over any cover (dark or light). */
+.slideshow-cursor[data-zone="prev"],
+.slideshow-cursor[data-zone="next"] {
+  background: transparent;
+  color: var(--on-dark);
+  font-size: 3.75rem;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0;
+  text-shadow:
+    0 6px 24px rgb(0 0 0 / 0.28),
+    0 1px 3px rgb(0 0 0 / 0.18);
+}
+
+/* Touch / no-hover: never show. Native cursor isn't an issue there
+   anyway (taps go straight to the slide link). */
+@media (hover: none), (pointer: coarse) {
+  .slideshow-cursor {
+    display: none;
+  }
 }
 
 /* --- Meta row (INK pattern): current project name on the left,
