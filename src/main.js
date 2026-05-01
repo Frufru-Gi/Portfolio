@@ -252,15 +252,16 @@ if (slideshow) {
     }
 
     // Pause on hover so viewers can read a slide they stopped on.
-    // On leave, advance one step RIGHT AWAY (in addition to restarting
-    // the interval) so the carousel visibly "resumes" instead of
-    // sitting on the same slide for another full cycle. Listeners go
-    // on the VIEWPORT (the slide area) rather than on the outer
-    // .work-slideshow section, so the surrounding padding doesn't
-    // count as a hover.
+    // On leave (mouse/pen only), advance one step right away so the
+    // carousel visibly resumes instead of sitting on the same slide.
+    // On touch the swipe handler (pointerup) owns the
+    // pause-resume-maybe-advance flow — letting pointerleave also
+    // advance here produced a double-step per finger gesture
+    // (1 → 2 via swipe, then → 3 via the leave advance).
     const hoverEl = slideshow.querySelector(".slideshow-viewport") || slideshow;
     hoverEl.addEventListener("pointerenter", stopAuto);
-    hoverEl.addEventListener("pointerleave", () => {
+    hoverEl.addEventListener("pointerleave", (e) => {
+      if (e.pointerType === "touch") return;
       next();
       startAuto();
     });
