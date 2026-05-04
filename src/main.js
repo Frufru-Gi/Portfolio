@@ -16,6 +16,439 @@ if (
   document.documentElement.classList.add("is-touch");
 }
 
+// Respect prefers-reduced-motion: pause any autoplaying videos so the
+// poster frame stays on screen instead of looping motion.
+const prefersReducedMotion =
+  window.matchMedia &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+if (prefersReducedMotion) {
+  document.querySelectorAll("video[autoplay]").forEach((video) => {
+    video.autoplay = false;
+    video.removeAttribute("autoplay");
+    // Some browsers start playback before JS runs; force-pause and
+    // rewind so the poster image is presented.
+    try {
+      video.pause();
+      video.currentTime = 0;
+    } catch (e) {
+      /* noop */
+    }
+  });
+}
+
+// Playback controls + scroll-driven auto-play for .case-video sections.
+// Each .case-video-frame holds a [data-video] element plus two toggle
+// buttons (play/pause, sound). The video auto-plays muted when it
+// enters the viewport and pauses when it leaves — until the user takes
+// explicit control, at which point the observer steps back and
+// respects the user's last action.
+document.querySelectorAll(".case-video-frame").forEach((frame) => {
+  const video = frame.querySelector("[data-video]");
+  if (!video) return;
+
+  // Tracks whether the user deliberately paused the video with the
+  // play/pause button. Once true, the IntersectionObserver stops
+  // auto-resuming playback when the video re-enters the viewport (but
+  // still pauses on leaving, to save battery and stop audio bleed).
+  // Unmuting or clicking play clears it.
+  let userPausedIntentionally = false;
+
+  // --- Play / Pause toggle -------------------------------------------------
+  const playBtn = frame.querySelector("[data-playpause-toggle]");
+  if (playBtn) {
+    const setPlayState = (playing) => {
+      playBtn.setAttribute("data-state", playing ? "playing" : "paused");
+      playBtn.setAttribute(
+        "aria-label",
+        playing ? "Pause video" : "Play video"
+      );
+      playBtn.setAttribute("title", playing ? "Pause" : "Play");
+    };
+
+    setPlayState(!video.paused);
+
+    playBtn.addEventListener("click", () => {
+      if (video.paused) {
+        // Play clears the intentional-pause flag so the observer can
+        // auto-resume next time the video re-enters the viewport.
+        userPausedIntentionally = false;
+        // If the video has reached the end (no loop), rewind first so
+        // clicking play replays from the beginning rather than no-op.
+        if (video.ended) {
+          video.currentTime = 0;
+        }
+        video.play().catch(() => {
+          /* autoplay may still block — nothing useful to do */
+        });
+      } else {
+        userPausedIntentionally = true;
+        video.pause();
+      }
+    });
+
+    // Sync if video playback state changes from outside (reduced-motion
+    // init, browser autoplay rejection, media keys, reaching end,
+    // IntersectionObserver auto-play).
+    video.addEventListener("play", () => setPlayState(true));
+    video.addEventListener("pause", () => setPlayState(false));
+    video.addEventListener("ended", () => setPlayState(false));
+  }
+
+  // --- Sound toggle --------------------------------------------------------
+  const soundBtn = frame.querySelector("[data-sound-toggle]");
+  if (soundBtn) {
+    const setSoundState = (unmuted) => {
+      video.muted = !unmuted;
+      soundBtn.setAttribute("aria-pressed", unmuted ? "true" : "false");
+      soundBtn.setAttribute(
+        "aria-label",
+        unmuted ? "Mute video" : "Unmute video"
+      );
+      soundBtn.setAttribute("title", unmuted ? "Mute" : "Unmute");
+    };
+
+    setSoundState(!video.muted);
+
+    soundBtn.addEventListener("click", () => {
+      const nextUnmuted = video.muted;
+      setSoundState(nextUnmuted);
+      // If the video is paused when the user unmutes, resume — a click
+      // is a valid user gesture to play with sound, and implies the
+      // user wants to watch (so clear any previous pause intent).
+      if (nextUnmuted && video.paused) {
+        userPausedIntentionally = false;
+        video.play().catch(() => {
+          /* noop */
+        });
+      }
+    });
+
+    // Sync if something else toggles video.muted (programmatic,
+    // keyboard media keys).
+    video.addEventListener("volumechange", () => {
+      const unmuted = !video.muted;
+      if (soundBtn.getAttribute("aria-pressed") !== String(unmuted)) {
+        setSoundState(unmuted);
+      }
+    });
+  }
+
+  // --- Fullscreen toggle ---------------------------------------------------
+  // Prefer Element.requestFullscreen on the frame so our custom
+  // controls stay visible on top. Fallback to video.webkitEnterFullscreen
+  // on iOS Safari (the only browser that doesn't support the standard
+  // API on arbitrary elements — iOS shows its native video player
+  // chrome in fullscreen, which is an acceptable trade-off).
+  const fullscreenBtn = frame.querySelector("[data-fullscreen-toggle]");
+  if (fullscreenBtn) {
+    const canRequestOnFrame =
+      typeof frame.requestFullscreen === "function" ||
+      typeof frame.webkitRequestFullscreen === "function";
+    const canRequestOnVideo =
+      typeof video.webkitEnterFullscreen === "function";
+
+    if (!canRequestOnFrame && !canRequestOnVideo) {
+      // No fullscreen support at all — hide the button rather than
+      // leaving a dead control on screen.
+      fullscreenBtn.hidden = true;
+    } else {
+      const setFullscreenState = (isFullscreen) => {
+        fullscreenBtn.setAttribute(
+          "data-state",
+          isFullscreen ? "fullscreen" : "normal"
+        );
+        fullscreenBtn.setAttribute(
+          "aria-pressed",
+          isFullscreen ? "true" : "false"
+        );
+        fullscreenBtn.setAttribute(
+          "aria-label",
+          isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
+        );
+        fullscreenBtn.setAttribute(
+          "title",
+          isFullscreen ? "Exit fullscreen" : "Fullscreen"
+        );
+      };
+
+      const isInFullscreen = () =>
+        document.fullscreenElement === frame ||
+        document.webkitFullscreenElement === frame;
+
+      fullscreenBtn.addEventListener("click", () => {
+        if (isInFullscreen()) {
+          if (typeof document.exitFullscreen === "function") {
+            document.exitFullscreen();
+          } else if (typeof document.webkitExitFullscreen === "function") {
+            document.webkitExitFullscreen();
+          }
+        } else if (canRequestOnFrame) {
+          const req =
+            frame.requestFullscreen || frame.webkitRequestFullscreen;
+          try {
+            const result = req.call(frame);
+            if (result && typeof result.catch === "function") {
+              result.catch(() => {
+                /* user dismissed or policy blocked */
+              });
+            }
+          } catch (e) {
+            /* noop */
+          }
+        } else if (canRequestOnVideo) {
+          // iOS Safari path — fullscreen the video directly. Native
+          // player chrome appears; our overlay is not visible in that
+          // mode, which is fine because iOS users already expect the
+          // OS-level fullscreen player.
+          try {
+            video.webkitEnterFullscreen();
+          } catch (e) {
+            /* noop */
+          }
+        }
+      });
+
+      // Sync icon + aria when the user exits via ESC or browser UI.
+      const onFullscreenChange = () => setFullscreenState(isInFullscreen());
+      document.addEventListener("fullscreenchange", onFullscreenChange);
+      document.addEventListener(
+        "webkitfullscreenchange",
+        onFullscreenChange
+      );
+    }
+  }
+
+  // --- Progress bar + scrubber --------------------------------------------
+  // Drive the .case-video-progress-fill's scaleX from currentTime via
+  // requestAnimationFrame while the video is playing. Using RAF (not
+  // the timeupdate event) gives frame-accurate smoothness; timeupdate
+  // only fires ~4 times/second which would look chunky.
+  const progressFill = frame.querySelector("[data-progress]");
+  const progressTrack = frame.querySelector("[data-progress-track]");
+  if (progressFill) {
+    let rafId = 0;
+
+    const renderProgress = (ratio) => {
+      const d = video.duration;
+      if (typeof ratio === "number") {
+        progressFill.style.transform = `scaleX(${ratio})`;
+      } else if (d && Number.isFinite(d) && d > 0) {
+        const p = Math.min(1, Math.max(0, video.currentTime / d));
+        progressFill.style.transform = `scaleX(${p})`;
+      }
+    };
+
+    const tick = () => {
+      renderProgress();
+      rafId = requestAnimationFrame(tick);
+    };
+
+    video.addEventListener("play", () => {
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+    const stopTicking = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+      // One final sync so the bar lands on the exact paused position.
+      renderProgress();
+    };
+    video.addEventListener("pause", stopTicking);
+    video.addEventListener("ended", stopTicking);
+    // Handle seeking (scrub, keyboard media keys) and initial
+    // metadata load so the bar is right on first paint.
+    video.addEventListener("seeked", () => renderProgress());
+    video.addEventListener("loadedmetadata", () => renderProgress());
+
+    // ----- Scrubber interaction ------------------------------------------
+    if (progressTrack) {
+      const clampRatio = (n) => Math.min(1, Math.max(0, n));
+
+      const ratioFromPointer = (clientX) => {
+        const rect = progressTrack.getBoundingClientRect();
+        return clampRatio((clientX - rect.left) / rect.width);
+      };
+
+      const seekToRatio = (ratio) => {
+        const d = video.duration;
+        if (!d || !Number.isFinite(d)) return;
+        video.currentTime = ratio * d;
+        // Paint immediately for snap-responsive drag; RAF/seeked will
+        // reconcile on the next frame.
+        renderProgress(ratio);
+        updateAria();
+      };
+
+      progressTrack.addEventListener("pointerdown", (event) => {
+        progressTrack.setAttribute("data-dragging", "true");
+        try {
+          progressTrack.setPointerCapture(event.pointerId);
+        } catch (e) {
+          /* noop */
+        }
+        seekToRatio(ratioFromPointer(event.clientX));
+        event.preventDefault();
+      });
+
+      progressTrack.addEventListener("pointermove", (event) => {
+        if (progressTrack.getAttribute("data-dragging") !== "true") return;
+        seekToRatio(ratioFromPointer(event.clientX));
+      });
+
+      const endDrag = (event) => {
+        if (progressTrack.getAttribute("data-dragging") !== "true") return;
+        progressTrack.removeAttribute("data-dragging");
+        try {
+          progressTrack.releasePointerCapture(event.pointerId);
+        } catch (e) {
+          /* noop */
+        }
+      };
+      progressTrack.addEventListener("pointerup", endDrag);
+      progressTrack.addEventListener("pointercancel", endDrag);
+
+      // Keyboard: ← / → step 5s, PageUp/Down step 10s, Home/End jump
+      // to start/end. Standard WAI-ARIA slider bindings.
+      progressTrack.addEventListener("keydown", (event) => {
+        const d = video.duration;
+        if (!d || !Number.isFinite(d)) return;
+        const step = 5;
+        const bigStep = 10;
+        let next = video.currentTime;
+        let handled = true;
+        switch (event.key) {
+          case "ArrowRight":
+            next = Math.min(d, video.currentTime + step);
+            break;
+          case "ArrowLeft":
+            next = Math.max(0, video.currentTime - step);
+            break;
+          case "PageUp":
+            next = Math.min(d, video.currentTime + bigStep);
+            break;
+          case "PageDown":
+            next = Math.max(0, video.currentTime - bigStep);
+            break;
+          case "Home":
+            next = 0;
+            break;
+          case "End":
+            next = d;
+            break;
+          default:
+            handled = false;
+        }
+        if (handled) {
+          event.preventDefault();
+          seekToRatio(next / d);
+        }
+      });
+
+      // Keep ARIA valuenow/valuetext in sync as the bar advances so
+      // screen readers announce the current position meaningfully.
+      const formatTime = (secs) => {
+        if (!Number.isFinite(secs)) return "0:00";
+        const m = Math.floor(secs / 60);
+        const s = Math.floor(secs % 60)
+          .toString()
+          .padStart(2, "0");
+        return `${m}:${s}`;
+      };
+
+      const updateAria = () => {
+        const d = video.duration;
+        if (!d || !Number.isFinite(d)) return;
+        const pct = Math.round((video.currentTime / d) * 100);
+        progressTrack.setAttribute("aria-valuenow", String(pct));
+        progressTrack.setAttribute(
+          "aria-valuetext",
+          `${formatTime(video.currentTime)} of ${formatTime(d)}`
+        );
+      };
+      video.addEventListener("timeupdate", updateAria);
+      video.addEventListener("loadedmetadata", updateAria);
+    }
+  }
+
+  // --- Scroll-driven auto-play + soft-loop on end -------------------------
+  // Play muted when the video is at least 40% visible; pause when it
+  // leaves the viewport entirely. Skip auto-play on reduced-motion.
+  // When the video ends (in view, not user-paused), soft-loop: wait
+  // a few seconds so the last frame has time to land, then rewind
+  // and play again. Any user action cancels the pending restart.
+  let isInView = false;
+  let restartTimer = 0;
+  const RESTART_DELAY_MS = 4000;
+
+  const cancelRestart = () => {
+    if (restartTimer) {
+      clearTimeout(restartTimer);
+      restartTimer = 0;
+    }
+  };
+
+  const scheduleRestart = () => {
+    cancelRestart();
+    if (prefersReducedMotion || userPausedIntentionally || !isInView) return;
+    restartTimer = setTimeout(() => {
+      restartTimer = 0;
+      // Re-check state at fire time — the user may have paused,
+      // scrolled away, or reduced-motion may have been applied in
+      // the meantime.
+      if (
+        !userPausedIntentionally &&
+        isInView &&
+        video.ended &&
+        !prefersReducedMotion
+      ) {
+        video.currentTime = 0;
+        video.play().catch(() => {
+          /* autoplay may still be blocked — stay silent */
+        });
+      }
+    }, RESTART_DELAY_MS);
+  };
+
+  video.addEventListener("ended", scheduleRestart);
+  // Any active user action cancels a pending restart so we don't
+  // resurrect the video after the user intentionally walked away.
+  video.addEventListener("play", cancelRestart);
+  video.addEventListener("pause", cancelRestart);
+
+  if ("IntersectionObserver" in window && !prefersReducedMotion) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isInView = entry.isIntersecting;
+          if (isInView) {
+            // Auto-resume only if the user didn't deliberately pause.
+            // Respect ended state too — once the video finishes, we
+            // wait for the soft-loop timer (or an explicit click).
+            if (!userPausedIntentionally && video.paused && !video.ended) {
+              video.play().catch(() => {
+                /* autoplay can still be blocked — stay silent */
+              });
+            }
+          } else {
+            // Always pause when out of view to save CPU/battery and
+            // to stop audio bleeding into other sections if unmuted.
+            // Also cancel any pending soft-loop restart so it doesn't
+            // fire after the user scrolled away.
+            cancelRestart();
+            if (!video.paused) {
+              video.pause();
+            }
+          }
+        });
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(frame);
+  }
+});
+
 if (toggle && menu) {
   // Match CSS: open = saracinesca 700ms + items 700ms with 180ms delay = 880ms;
   // close = saracinesca 700ms + items 700ms (no delay) = 700ms.
@@ -261,8 +694,12 @@ if (slideshow) {
     const hoverEl = slideshow.querySelector(".slideshow-viewport") || slideshow;
     hoverEl.addEventListener("pointerenter", stopAuto);
     hoverEl.addEventListener("pointerleave", (e) => {
+      // Touch: swipe handler (pointerup) owns pause/resume.
       if (e.pointerType === "touch") return;
-      next();
+      // Restart the auto-advance clock. We no longer advance one step
+      // on leave — that made the slide appear to change the moment the
+      // cursor moved past the viewport, which felt like the carousel
+      // never really paused even if it had.
       startAuto();
     });
 

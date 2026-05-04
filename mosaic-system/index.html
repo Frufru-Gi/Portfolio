@@ -8,6 +8,7 @@
       name="description"
       content="Mosaic System — a design-system project by Giulia Frumento at Bending Spoons."
     />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/src/style.css" />
     <script type="module" src="/src/main.js"></script>
   </head>
@@ -91,12 +92,16 @@
     </nav>
 
     <section class="case-hero">
-      <p class="case-eyebrow">2024 · Design System · Bending Spoons</p>
+      <p class="case-eyebrow">
+        Design Systems · Growth · Bending Spoons
+      </p>
       <h1 class="case-title">Mosaic System</h1>
       <p class="case-lead">
-        Unifying how a portfolio of consumer apps looks, behaves, and
-        scales — one shared design system, tightly coupled to the code it
-        ships with.
+        A scalable design and tokens library that turned monetization
+        across 100+ apps in the Bending Spoons portfolio into one
+        orchestrated system — designed and shipped before the AI era,
+        when "doing it at scale" still meant inventing the method
+        yourself.
       </p>
     </section>
 
@@ -104,99 +109,198 @@
       <dl class="case-meta-list">
         <div class="case-meta-row">
           <dt>Year</dt>
-          <dd>2024</dd>
+          <dd>2023 — 2024</dd>
         </div>
         <div class="case-meta-row">
           <dt>Role</dt>
-          <dd>Product Designer</dd>
+          <dd>Co-architect · Product Designer</dd>
         </div>
         <div class="case-meta-row">
-          <dt>Duration</dt>
-          <dd>Ongoing</dd>
+          <dt>Scale</dt>
+          <dd>100+ apps in the portfolio</dd>
         </div>
         <div class="case-meta-row">
           <dt>Tools</dt>
-          <dd>Figma, Tokens Studio, Storybook</dd>
+          <dd>Figma, Tokenique, GitHub</dd>
         </div>
       </dl>
     </section>
 
     <figure class="case-cover">
-      <div
+      <img
+        src="/images/mosaic-system/showcase.png"
+        alt="Mosaic System — showcase overview"
         class="case-cover-media"
-        style="--cover: #f1ece4"
-        aria-hidden="true"
-      ></div>
+      />
     </figure>
 
     <section class="case-section">
       <h2 class="case-section-title">The challenge</h2>
       <div class="case-section-body">
         <p>
-          Lorem ipsum dolor sit amet. Every app had its own version of the
-          same button, the same list row, the same paywall. Teams were
-          re-inventing components in parallel, and polish was wildly
-          inconsistent between products even when they shipped the same
-          feature.
+          When we started, there was no scalable way to design
+          monetization across the portfolio. Every app had its own
+          paywall, its own onboarding, its own tokens. Every experiment
+          was a one-off. Every visual update was a copy-paste job. Every
+          learning was trapped inside the app it came from.
         </p>
         <p>
-          We needed a shared library that was opinionated enough to bring
-          real consistency, and flexible enough that no team would feel it
-          slowed them down.
+          The brief was huge: build a system that could scale seamlessly
+          to 100+ apps, make it possible to isolate the reason behind
+          each experiment's success or failure, and keep brand identity
+          intact across wildly different products — from fitness to
+          meditation to photo editing.
+        </p>
+        <p>
+          And the harder part: nobody had done this before at our scale.
+          We searched for case studies, internal precedents, off-the-
+          shelf approaches — and found nothing. We had to invent the
+          model.
         </p>
       </div>
     </section>
 
     <section class="case-section">
-      <h2 class="case-section-title">Approach</h2>
+      <h2 class="case-section-title">How we built it</h2>
       <div class="case-section-body">
         <p>
-          Mosaic was built from a small token layer and a handful of core
-          primitives first. We resisted the urge to ship every component
-          on day one — instead we matched the library to the real
-          components the apps were already leaning on, and grew it in
-          lockstep with product work.
+          I co-architected Mosaic with one other designer. We shaped
+          every layer of the system together — the architecture, the
+          naming conventions, the modes, the sync with code — and then
+          took it all the way to production across the full portfolio.
+          We split the apps between us so each of us could go deep on
+          real product cases, but the system itself was something we
+          built side by side, problem after problem.
         </p>
         <p>
-          Figma variables and design tokens were generated from the same
-          source so engineering and design stayed in sync automatically.
-          Changing a radius in Figma changed it in production by Friday.
+          It grew into four connected layers, each one solving a problem
+          the previous layer had exposed.
+        </p>
+        <p>
+          We started with <strong>primitives</strong> — a flat color
+          palette with consistent naming, used as the raw building blocks
+          but never applied to components directly. On top of those, we
+          layered <strong>semantic tokens</strong>: meaningful names like
+          <code>button-primary-background</code> or
+          <code>accent-color</code> that referenced the primitives but
+          carried intent instead of values. This is where the system
+          started to feel like a system — and where the real leverage
+          lived.
+        </p>
+        <p>
+          Each token operates on two axes at once. Six
+          <strong>brand theme modes</strong> — pink, blue, green, purple,
+          orange, turquoise — one for each app family, so switching theme
+          repaints an entire screen automatically. And
+          <strong>light and dark modes</strong>, paired with every token,
+          so the same component lives in both worlds with zero duplicate
+          work. A single component definition produces twelve valid
+          variants out of the box.
+        </p>
+        <p>
+          The third layer is <strong>components</strong>, connected to
+          tokens through Figma's variable modes. Change a theme on a
+          frame and the change ripples through every nested component,
+          popup, and flow. The system was built to be dev-ready by
+          default: every token maps to a CSS variable, and code uses
+          those tokens — not raw hex values.
+        </p>
+        <p>
+          The last layer closes the loop. Tokens are
+          <strong>synced to GitHub</strong> through Tokenique. Designers
+          update tokens in Figma, engineering pulls them straight into
+          the codebase. The chronic drift between design and code became
+          a non-issue.
         </p>
       </div>
     </section>
 
     <section class="case-gallery">
       <figure class="case-image">
-        <div
+        <img
+          src="/images/mosaic-system/tokens.png"
+          alt="Mosaic System — design tokens"
           class="case-image-media"
-          style="--cover: #e7dec7"
-          aria-hidden="true"
-        ></div>
+        />
       </figure>
       <figure class="case-image">
-        <div
+        <img
+          src="/images/mosaic-system/components.png"
+          alt="Mosaic System — component primitives"
           class="case-image-media"
-          style="--cover: #faf5e8"
-          aria-hidden="true"
-        ></div>
+        />
       </figure>
       <figure class="case-image case-image--wide">
-        <div
+        <img
+          src="/images/mosaic-system/apps.png"
+          alt="Mosaic System — apps using the library"
           class="case-image-media"
-          style="--cover: #f1ece4"
-          aria-hidden="true"
-        ></div>
+        />
       </figure>
+    </section>
+
+    <section class="case-section">
+      <h2 class="case-section-title">What made it hard</h2>
+      <div class="case-section-body">
+        <p>
+          Building this before AI tooling meant solving everything with
+          manual rigor. We had to match naming conventions across
+          thousands of variables, fight the limits Figma had at the time
+          on modes and references, and find the right level of
+          abstraction for every token. Too generic and they lose meaning.
+          Too specific and they stop scaling. The line between the two
+          is thinner than it looks.
+        </p>
+        <p>
+          We hit Figma's ceiling more than once. Re-architected the
+          variable structure twice. Invented our own opacity-naming
+          convention because the platform didn't support one yet. It was
+          a research project disguised as a design system, and a lot of
+          what eventually shipped came out of iterations we had to throw
+          away.
+        </p>
+        <p>
+          The hardest decision, in the end, wasn't visual or technical —
+          it was deciding what the system should <em>not</em> try to do,
+          so that the parts it did do, it did really well.
+        </p>
+      </div>
     </section>
 
     <section class="case-section">
       <h2 class="case-section-title">Outcome</h2>
       <div class="case-section-body">
         <p>
-          Mosaic is now the default starting point for new screens across
-          the portfolio. Teams ship faster, fewer one-off components get
-          built, and the visual layer finally gets the same iteration
-          rigor the codebase does.
+          Mosaic became the engine behind monetization across 100+ apps.
+          It supported <strong>245 experiments</strong> that contributed
+          to <strong>over $100M in profit</strong>. It gave design and
+          engineering teams a shared vocabulary — and turned shipping a
+          new paywall variant from a multi-week task into something that
+          takes hours.
+        </p>
+        <p>
+          And the bigger, quieter win sits inside the company: Mosaic
+          has officially become the onboarding system for most new
+          designers joining Bending Spoons. The way we built it is now
+          the way the company teaches scale.
+        </p>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <h2 class="case-section-title">What I learned</h2>
+      <div class="case-section-body">
+        <p>
+          Mosaic changed how I think about scale. The hardest part
+          wasn't visual or technical — it was knowing where to draw the
+          line, and trusting that a smaller, sharper system would
+          outperform a bigger, fuzzier one.
+        </p>
+        <p>
+          I'd build it the same way again. The piece I'd add:
+          documenting the failed iterations early. Half of what made
+          Mosaic work were the things we tried and abandoned, and that
+          knowledge is exactly what new joiners need most.
         </p>
       </div>
     </section>

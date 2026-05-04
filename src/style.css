@@ -186,6 +186,9 @@ a {
   padding-inline: var(--header-pad);
 }
 
+/* .case-cover is intentionally NOT in the list above: the cover is
+   full-bleed edge-to-edge. */
+
 /* Reserve space for header (which is absolute, scrolls with the page) */
 body {
   padding-top: var(--header-h);
@@ -847,17 +850,11 @@ body.is-menu-animating .menu-label {
 .project-cover {
   position: absolute;
   inset: 0;
-  /* Once project media is added, this will host an <img>/<video>;
-     for now it relies on the per-card `--cover` background color set
-     on the parent via inline style. The vignette sits at the TOP of
-     the card (matching the caption position) so the title + category
-     stay legible over any future cover image. */
-  background: linear-gradient(
-    to bottom,
-    rgb(0 0 0 / 0.18) 0%,
-    transparent 35%
-  );
+  /* Host an <img>/<video> inside. The vignette sits on a pseudo-
+     element above the media so the gradient still darkens the TOP of
+     the card (where the title lives) even when there's an image. */
   pointer-events: none;
+  overflow: hidden;
   /* Zoom on hover (the "image inside" effect). Card has overflow
      hidden so the scaled cover is clipped to the rounded rect. */
   transform: scale(1);
@@ -868,6 +865,31 @@ body.is-menu-animating .menu-label {
 
 .project-link:hover .project-cover {
   transform: scale(1.06);
+}
+
+/* Top vignette overlaid on top of any <img>/<video> inside .project-
+   cover: a stronger dark band at the top (where the title sits) that
+   fades to transparent roughly halfway down, so the caption stays
+   legible without darkening the lower portion of the cover. */
+.project-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.72) 0%,
+    rgb(0 0 0 / 0.3) 30%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+/* Image/video media inside a card cover fills the whole area. */
+.project-cover-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Static caption pinned to the TOP of the card. No scroll animation —
@@ -1008,8 +1030,17 @@ body.is-menu-animating .menu-label {
 .slide-cover {
   position: absolute;
   inset: 0;
-  /* Vignette so the caption stays legible against any future
-     <img>/<video> placed inside the slide. */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Vignette overlaid on top of any <img>/<video> media inside the
+   slide cover — pseudo-element so images sit underneath the gradient
+   rather than replacing it as a background. */
+.slide-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: linear-gradient(
     to top,
     rgb(0 0 0 / 0.28) 0%,
@@ -1017,6 +1048,16 @@ body.is-menu-animating .menu-label {
     transparent 45%
   );
   pointer-events: none;
+}
+
+/* Media (img/video) inside a slide cover — fills the full area,
+   cropped via object-fit so the aspect ratio matches the slide
+   aspect ratio (4/5 mobile, 16/10 desktop). */
+.slide-cover-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* --- Custom "View project" cursor (INK pattern) ---
@@ -1260,16 +1301,282 @@ body.is-menu-animating .menu-label {
 }
 
 .case-cover-media {
+  display: block;
   width: 100%;
   aspect-ratio: 4 / 5;
   background: var(--cover, var(--surface));
-  border-radius: 8px;
+  /* No border-radius — the cover is full-bleed edge-to-edge, rounded
+     corners at the viewport edge would look unintentional. */
+  /* Only applies when the element is an <img>/<video> — ignored on
+     empty placeholder <div>s. Lets the same class handle both the
+     "color-only placeholder" and a real cover asset. */
+  object-fit: cover;
 }
 
 @media (min-width: 768px) {
   .case-cover-media {
     aspect-ratio: 16 / 10;
   }
+}
+
+/* Full-bleed video section used as the visual payoff near the end of
+   a case study. Mirrors the .case-cover layout (edge-to-edge, 4:5 on
+   mobile → 16:10 on desktop) so the two full-bleed figures read as a
+   matched pair — the cover opens the story, this video closes it. */
+.case-video {
+  margin: 0;
+  padding-block: var(--space-8) var(--space-12);
+}
+
+@media (min-width: 768px) {
+  .case-video {
+    padding-block: var(--space-12) var(--space-16);
+  }
+}
+
+.case-video-media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: var(--cover, var(--surface));
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .case-video-media {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+/* Wrapper around the video so the overlaid controls position
+   themselves relative to the video's box (not the figure padding). */
+.case-video-frame {
+  position: relative;
+}
+
+/* Floating controls spanning the bottom of the video. Primary
+   (play/pause + sound) sits on the left, secondary (fullscreen) on
+   the right — matching standard video-player conventions. Each
+   button renders multiple SVG icons and toggles their visibility via
+   a data-state or aria-pressed attribute — one icon is visible at a
+   time. */
+.case-video-controls {
+  position: absolute;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.case-video-controls-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  /* Re-enable pointer events on groups so the buttons stay clickable
+     even though the outer container disables them (preventing the
+     empty gap between groups from capturing clicks on the video). */
+  pointer-events: auto;
+}
+
+@media (min-width: 768px) {
+  .case-video-controls {
+    left: var(--space-6);
+    right: var(--space-6);
+    bottom: var(--space-6);
+  }
+  .case-video-controls-group {
+    gap: var(--space-3);
+  }
+}
+
+/* Thin progress bar pinned to the very bottom edge of the video.
+   Interactive: click/tap to seek, drag to scrub, keyboard to step.
+   The visible bar stays at 3px for minimalism; a transparent ::before
+   extends the pointer hit area upward so the track is easy to grab
+   even with a finger. On hover/focus/drag the bar grows to 6px as a
+   visible affordance. Fill's scaleX is written by a RAF loop driven
+   from the video's currentTime. */
+.case-video-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  touch-action: none;
+  z-index: 1;
+  transition: height 200ms ease;
+}
+
+/* Extends the clickable area upward by 14px without affecting the
+   visible bar. Keeps hover/focus affordance aligned with the bar. */
+.case-video-progress::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -14px;
+  bottom: 0;
+}
+
+.case-video-progress:hover,
+.case-video-progress:focus-visible,
+.case-video-progress[data-dragging="true"] {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.case-video-progress:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.case-video-progress-fill {
+  height: 100%;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.92);
+  transform: scaleX(0);
+  transform-origin: left center;
+  /* No transition — scaleX is written on every RAF tick for
+     frame-accurate progress, and a transition would introduce lag. */
+  will-change: transform;
+  pointer-events: none;
+}
+
+.case-video-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  /* Backdrop-blur gives the button legibility over any video frame
+     without hiding the content behind. Fallback solid tint for
+     browsers without backdrop-filter support. */
+  background: rgba(0, 0, 0, 0.32);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    transform 200ms ease,
+    background 200ms ease,
+    border-color 200ms ease;
+}
+
+@media (min-width: 768px) {
+  .case-video-btn {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+.case-video-btn:hover,
+.case-video-btn:focus-visible {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.06);
+  outline: none;
+}
+
+.case-video-btn-icon {
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .case-video-btn-icon {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* Play/pause: default "playing" shows the pause icon; "paused" swaps
+   to the play icon. */
+.case-video-btn[data-playpause-toggle] .is-play {
+  display: none;
+}
+.case-video-btn[data-playpause-toggle][data-state="paused"] .is-pause {
+  display: none;
+}
+.case-video-btn[data-playpause-toggle][data-state="paused"] .is-play {
+  display: block;
+}
+
+/* Sound: default aria-pressed="false" (muted) shows the crossed-out
+   speaker; aria-pressed="true" (unmuted) shows the speaker with waves. */
+.case-video-btn[data-sound-toggle] .is-unmuted {
+  display: none;
+}
+.case-video-btn[data-sound-toggle][aria-pressed="true"] .is-muted {
+  display: none;
+}
+.case-video-btn[data-sound-toggle][aria-pressed="true"] .is-unmuted {
+  display: block;
+}
+
+/* Fullscreen: default "normal" shows the outward corners (enter);
+   "fullscreen" swaps to the inward corners (exit). */
+.case-video-btn[data-fullscreen-toggle] .is-exit {
+  display: none;
+}
+.case-video-btn[data-fullscreen-toggle][data-state="fullscreen"] .is-enter {
+  display: none;
+}
+.case-video-btn[data-fullscreen-toggle][data-state="fullscreen"] .is-exit {
+  display: block;
+}
+
+/* When the frame is promoted to fullscreen, fill the screen with a
+   black letterbox and switch the video to object-fit: contain so the
+   whole frame is visible (instead of being cropped by the 16:10
+   aspect-ratio window). Controls stay pinned to the corner, scaled
+   up a bit so they're usable on a large screen. */
+.case-video-frame:fullscreen,
+.case-video-frame:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.case-video-frame:fullscreen .case-video-media,
+.case-video-frame:-webkit-full-screen .case-video-media {
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+  object-fit: contain;
+  background: #000;
+}
+
+.case-video-frame:fullscreen .case-video-controls,
+.case-video-frame:-webkit-full-screen .case-video-controls {
+  left: var(--space-8);
+  right: var(--space-8);
+  bottom: var(--space-8);
+}
+
+/* Screen-reader only utility (used by the toggle's hidden label). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Body section: small sans h2 above a readable prose column. */
@@ -1319,6 +1626,65 @@ body.is-menu-animating .menu-label {
   text-wrap: pretty;
 }
 
+/* Inline emphasis in case-study prose. `strong` picks up the subtle
+   weight increase that body sans copy expects; `code` uses the
+   platform mono stack with a faint surface chip so a token name like
+   `button-primary-background` reads as code-ish without shouting. */
+.case-section-body strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.case-section-body em {
+  font-style: italic;
+}
+
+.case-section-body code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.92em;
+  padding: 0.1em 0.4em;
+  background: var(--surface);
+  border-radius: 4px;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+
+/* Inline links inside prose — subtle underline that thickens on hover.
+   Keep color inherited (var(--ink)) so the link blends into the
+   paragraph rather than shouting brand blue. */
+.case-section-body a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--ink) 45%, var(--bg));
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.case-section-body a:hover {
+  text-decoration-color: var(--ink);
+}
+
+/* Bulleted lists in prose — left-aligned markers, gap between items
+   matching the paragraph rhythm. */
+.case-section-body ul {
+  margin: 0;
+  padding-left: 1.25em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style-type: disc;
+}
+
+.case-section-body li {
+  text-wrap: pretty;
+}
+
+.case-section-body li::marker {
+  color: var(--ink-muted);
+}
+
 /* Gallery — 2-col grid with an optional wide full-row item.
    Placeholders use --cover inline color; each image is a figure so
    a future <figcaption> can live alongside an <img>. */
@@ -1346,10 +1712,12 @@ body.is-menu-animating .menu-label {
 }
 
 .case-image-media {
+  display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
   background: var(--cover, var(--surface));
   border-radius: 8px;
+  object-fit: cover;
 }
 
 .case-image--wide .case-image-media {

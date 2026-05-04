@@ -8,6 +8,7 @@
       name="description"
       content="Komoot Redesign — a UX/UI and growth project by Giulia Frumento at Bending Spoons."
     />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/src/style.css" />
     <script type="module" src="/src/main.js"></script>
   </head>
@@ -95,29 +96,30 @@
 
     <!-- CASE HERO — big serif title with a small eyebrow above it. -->
     <section class="case-hero">
-      <p class="case-eyebrow">2024 · UX/UI · Growth · Bending Spoons</p>
+      <p class="case-eyebrow">UX/UI · Product · Bending Spoons</p>
       <h1 class="case-title">Komoot Redesign</h1>
       <p class="case-lead">
-        Reshaping Komoot's product experience end to end — from the first
-        onboarding tap to the last saved route — with a focus on clarity,
-        speed of iteration, and measurable growth.
+        A full product redesign of one of Europe's most-loved outdoor
+        apps — across iOS, Android and Web — built during the most
+        delicate moment in Komoot's history: the handover to a new
+        owner, a new team, and a new chapter.
       </p>
     </section>
 
-    <!-- META GRID — Year · Role · Duration · Tools -->
+    <!-- META GRID — Year · Role · Scope · Tools -->
     <section class="case-meta">
       <dl class="case-meta-list">
         <div class="case-meta-row">
           <dt>Year</dt>
-          <dd>2024</dd>
+          <dd>2025</dd>
         </div>
         <div class="case-meta-row">
           <dt>Role</dt>
-          <dd>Product Designer</dd>
+          <dd>Main Product Designer</dd>
         </div>
         <div class="case-meta-row">
-          <dt>Duration</dt>
-          <dd>12 weeks</dd>
+          <dt>Scope</dt>
+          <dd>iOS, Android, and Web</dd>
         </div>
         <div class="case-meta-row">
           <dt>Tools</dt>
@@ -126,8 +128,9 @@
       </dl>
     </section>
 
-    <!-- COVER — full-bleed hero media placeholder. Swap `.case-cover-media`
-         for an <img> / <video> once assets exist. -->
+    <!-- COVER — full-bleed hero media placeholder. Static image goes
+         here once the user uploads a final asset; `--cover` sets the
+         first-paint background while no media is present. -->
     <figure class="case-cover">
       <div
         class="case-cover-media"
@@ -141,34 +144,96 @@
       <h2 class="case-section-title">The challenge</h2>
       <div class="case-section-body">
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. The app
-          had accumulated years of surface-level patches on top of a visual
-          language that no longer fit where the product was headed.
-          Conversion from trial to paid had plateaued, and the onboarding
-          flow was doing more explaining than guiding.
+          In early 2025, Bending Spoons acquired Komoot — a company with
+          a fifteen-year history, a community of more than 50 million
+          outdoor enthusiasts, and a product that people genuinely
+          loved. I was the designer assigned to follow the acquisition,
+          the handover from the original Komoot team, and the redesign
+          that would mark the first major visible change of the new
+          chapter.
         </p>
         <p>
-          The brief was simple on paper: find the 20% of changes that would
-          move the biggest numbers, and ship them without a rebrand.
+          This wasn't a routine rebrand. It was a moment of real
+          transition — for the product, for the team that was passing
+          it on, and for the community who had built habits around the
+          app for years. The brief was clear in its ambition and
+          unforgiving in its constraints:
+          <strong
+            >the new design had to feel modern and intuitive, but still
+            feel like Komoot.</strong
+          >
+          The community had to recognize itself in the result.
+        </p>
+        <p>
+          The work was originally scoped as a one-month effort focused
+          on a few key surfaces. Once we got into the codebase and the
+          actual user flows, the truth was harder to ignore: the app
+          had years of accumulated patches, an outdated visual
+          language, and usability debt that couldn't be solved at the
+          surface level. One month became three for the first rollout —
+          then another three for additional screens and QA.
         </p>
       </div>
     </section>
 
-    <!-- APPROACH -->
+    <!-- HOW I APPROACHED IT -->
     <section class="case-section">
-      <h2 class="case-section-title">Approach</h2>
+      <h2 class="case-section-title">How I approached it</h2>
       <div class="case-section-body">
         <p>
-          We ran a two-week audit across the highest-traffic surfaces,
-          shadowed a dozen user sessions, and mapped every friction point
-          against the app's growth funnel. The outcome was a small,
-          tightly-scoped backlog: a rebuilt onboarding, a clearer paywall,
-          and a map screen that finally read as the product's hero.
+          I worked as the main product designer, leading the design end
+          to end across iOS, Android, and Web, with strategic guidance
+          from a senior designer and, in the second half of the
+          project, a second designer who joined to cover additional
+          screens.
         </p>
         <p>
-          Design decisions lived close to engineering — a shared Figma +
-          code tokens library kept the handover boring in the right way,
-          which meant iteration could happen in days, not sprints.
+          The first job was
+          <strong>mapping the existing product in full</strong>. Before
+          redesigning anything, I went through every screen of the live
+          app — iOS, Android, and Web — and reconstructed the complete
+          surface area: every flow, every state, every screen we had
+          inherited. That mapping became the shared reference for the
+          rest of the project: it told us what was actually there
+          (often more than the previous documentation suggested), where
+          the redundancies and inconsistencies lived, and which
+          surfaces carried the most product weight.
+        </p>
+        <p>
+          From there, the work split naturally into three streams that
+          ran in parallel: the foundations, the high-impact surfaces,
+          and the long tail of details that decide whether a redesign
+          feels finished or rushed.
+        </p>
+        <p>
+          The next job was
+          <strong>understanding what Komoot actually was</strong>. Not
+          what it looked like, not what the previous design language
+          said it was — but what people came to it for, what they did
+          with it, what they hated about it. We ran the work
+          hand-in-hand with the community: 110 in-person interviews and
+          over 3,000 online surveys to map preferences, friction
+          points, and the elements people would have refused to lose.
+          That research became the spine of every decision that
+          followed.
+        </p>
+        <p>
+          From there, the priorities sharpened. We focused on the
+          surfaces that carried the most product weight — onboarding,
+          route discovery, the route planner, and the navigation
+          experience — and rebuilt them around two principles: clarity
+          over decoration, and continuity over reinvention. The design
+          system got refreshed at the foundations level (color palette,
+          typography, iconography, illustrations), but the navigation
+          patterns and core workflows were preserved on purpose. People
+          needed to recognize their app on the morning after the
+          launch.
+        </p>
+        <p>
+          The harder calls were the quiet ones. Knowing what to leave
+          alone. Knowing when "outdated" was actually "loved". Knowing
+          that a community of 50 million people had earned the right to
+          a redesign that didn't punish their muscle memory.
         </p>
       </div>
     </section>
@@ -189,13 +254,40 @@
           aria-hidden="true"
         ></div>
       </figure>
-      <figure class="case-image case-image--wide">
-        <div
-          class="case-image-media"
-          style="--cover: #2b1f4a"
-          aria-hidden="true"
-        ></div>
-      </figure>
+    </section>
+
+    <!-- WHAT MADE IT HARD -->
+    <section class="case-section">
+      <h2 class="case-section-title">What made it hard</h2>
+      <div class="case-section-body">
+        <p>
+          The technical surface was its own challenge — the app was old
+          enough that some screens were carrying assumptions from a
+          different era of mobile design, and some of those assumptions
+          were bolted into the codebase. Every decision had to clear two
+          bars: did it improve the experience, and could engineering
+          ship it without rewriting more than the redesign was worth?
+        </p>
+        <p>
+          But the heaviest part of the project wasn't technical. It was
+          the human one. Following an acquisition means working
+          alongside people who built the thing you're now reshaping —
+          people who care about it deeply, and are watching it pass
+          into different hands. The original Komoot team had given the
+          product fifteen years; my job was to honor that work while
+          taking the product forward. There's no playbook for that kind
+          of in-between moment, and a lot of the project was spent
+          learning how to hold both things at once: respect for what
+          was, and clarity about what needed to change.
+        </p>
+        <p>
+          The other thing was scope. The "one month, then we ship" plan
+          didn't survive contact with the codebase. The rollout extended
+          to six months total, in two phases, because the only thing
+          worse than a slow redesign would have been a fast one that
+          broke the habits of 50 million people.
+        </p>
+      </div>
     </section>
 
     <!-- OUTCOME -->
@@ -203,15 +295,226 @@
       <h2 class="case-section-title">Outcome</h2>
       <div class="case-section-body">
         <p>
-          The redesigned flow shipped in three increments over a quarter
-          and moved the metrics we wanted: a lift in onboarding completion,
-          a meaningfully better trial-to-paid conversion, and clearer data
-          on where the next iteration should go next.
+          The new design launched on Web globally in September 2025,
+          with Mobile following soon after. The community response,
+          <a
+            href="https://newsroom.komoot.com/254260-komoot-unveils-modern-design-as-part-of-ambitious-product-roadmap/"
+            target="_blank"
+            rel="noopener"
+            >reported in Komoot's own newsroom</a
+          >, set a high bar:
+        </p>
+        <ul>
+          <li>
+            <strong>Over 80%</strong> of users said they preferred the
+            new design over the previous one
+          </li>
+          <li>
+            Another <strong>15%</strong> said they liked it equally —
+            meaning
+            <strong
+              >95% of the community responded positively or neutrally</strong
+            >
+            to the change
+          </li>
+          <li>
+            Komoot's review and feedback channels remained healthy
+            through the rollout
+          </li>
+        </ul>
+        <p>
+          Beyond the launch numbers, the redesign became the first
+          piece of an ambitious product roadmap. Within five months of
+          the acquisition, the team had shipped over 50 changes to Web,
+          Mobile, and connected devices. The redesigned foundations
+          made that velocity possible: a cleaner system, a faster
+          handover loop, and a design language that the team can keep
+          iterating on without going back to first principles each
+          time.
+        </p>
+      </div>
+    </section>
+
+    <!-- VIDEO — full-bleed walkthrough placed as the visual payoff
+         between Outcome and Learnings. Auto-plays muted when it
+         enters the viewport; pauses when it leaves. The user can
+         take control at any time with the play/pause and sound
+         toggles. After explicit user interaction, the observer no
+         longer overrides their choice. -->
+    <figure class="case-video" style="--cover: #2b1f4a">
+      <div class="case-video-frame">
+        <video
+          class="case-video-media"
+          data-video
+          muted
+          playsinline
+          preload="metadata"
+          poster="/images/komoot-redesign/cover-poster.jpg"
+          aria-label="Komoot Redesign — interface walkthrough"
+        >
+          <source src="/images/komoot-redesign/cover.mp4" type="video/mp4" />
+        </video>
+        <!-- Thin progress bar pinned to the bottom edge of the video.
+             Interactive: click/tap anywhere to seek, drag to scrub.
+             Focusable with a keyboard: ArrowLeft/Right seek ±5s,
+             PageUp/Down seek ±10s, Home/End jump to start/end.
+             Visually the bar is 3px; a transparent zone above it
+             (via ::before) extends the pointer hit area so the
+             interaction target is comfortable without changing the
+             visual language. A JS RAF loop drives .fill's scaleX. -->
+        <div
+          class="case-video-progress"
+          data-progress-track
+          role="slider"
+          tabindex="0"
+          aria-label="Video progress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <div class="case-video-progress-fill" data-progress></div>
+        </div>
+        <!-- Controls span the bottom with left (primary) and right
+             (secondary) groups so playback actions sit apart from the
+             display/mode action, following standard player convention. -->
+        <div class="case-video-controls">
+          <div class="case-video-controls-group">
+          <button
+            class="case-video-btn"
+            type="button"
+            data-playpause-toggle
+            data-state="paused"
+            aria-label="Play video"
+            title="Play"
+          >
+            <svg
+              class="case-video-btn-icon is-pause"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <rect x="6" y="4" width="4" height="16" fill="currentColor" />
+              <rect x="14" y="4" width="4" height="16" fill="currentColor" />
+            </svg>
+            <svg
+              class="case-video-btn-icon is-play"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <polygon points="7 4 20 12 7 20 7 4" fill="currentColor" />
+            </svg>
+            <span class="sr-only">Toggle playback</span>
+          </button>
+          <button
+            class="case-video-btn"
+            type="button"
+            data-sound-toggle
+            aria-pressed="false"
+            aria-label="Unmute video"
+            title="Unmute"
+          >
+            <svg
+              class="case-video-btn-icon is-muted"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="22" y1="9" x2="16" y2="15"></line>
+              <line x1="16" y1="9" x2="22" y2="15"></line>
+            </svg>
+            <svg
+              class="case-video-btn-icon is-unmuted"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            <span class="sr-only">Toggle sound</span>
+          </button>
+          </div>
+          <div class="case-video-controls-group">
+          <button
+            class="case-video-btn"
+            type="button"
+            data-fullscreen-toggle
+            data-state="normal"
+            aria-pressed="false"
+            aria-label="Enter fullscreen"
+            title="Fullscreen"
+          >
+            <!-- Enter fullscreen (four outward-pointing corners) -->
+            <svg
+              class="case-video-btn-icon is-enter"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 7V4a1 1 0 0 1 1-1h3" />
+              <path d="M17 3h3a1 1 0 0 1 1 1v3" />
+              <path d="M21 17v3a1 1 0 0 1-1 1h-3" />
+              <path d="M7 21H4a1 1 0 0 1-1-1v-3" />
+            </svg>
+            <!-- Exit fullscreen (four inward-pointing corners) -->
+            <svg
+              class="case-video-btn-icon is-exit"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M8 3v3a2 2 0 0 1-2 2H3" />
+              <path d="M21 8h-3a2 2 0 0 1-2-2V3" />
+              <path d="M3 16h3a2 2 0 0 1 2 2v3" />
+              <path d="M16 21v-3a2 2 0 0 1 2-2h3" />
+            </svg>
+            <span class="sr-only">Toggle fullscreen</span>
+          </button>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <!-- WHAT I LEARNED -->
+    <section class="case-section">
+      <h2 class="case-section-title">What I learned</h2>
+      <div class="case-section-body">
+        <p>
+          This was the project that taught me design isn't only about
+          the artifact. It's about the people who built what came
+          before, the people who use what you're shipping, and the
+          responsibility you carry as the bridge between the two.
         </p>
         <p>
-          Beyond the numbers, the bigger win was a shared vocabulary
-          between design and engineering that survived the project — and a
-          codebase that made it easier to keep moving after the launch.
+          I learned to slow down on the parts that looked easy and to
+          speed up on the parts that looked impossible. I learned that
+          respecting a product's history is a design skill, not a
+          compromise. And I learned that the hardest decisions in a
+          redesign aren't about what to change — they're about what to
+          leave alone, even when leaving things alone is unfashionable.
+        </p>
+        <p>
+          If I did it again, I'd ask for more time at the very
+          beginning to listen — to the previous team, to the community,
+          to the codebase. The pressure of a one-month brief made us
+          rush past the part of the work that mattered most.
         </p>
       </div>
     </section>
