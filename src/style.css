@@ -830,7 +830,6 @@ body.is-menu-animating .menu-label {
   font-size: var(--fs-md);
   color: var(--ink-muted);
   letter-spacing: -0.005em;
-  max-width: 540px;
   text-wrap: pretty;
 }
 
@@ -2020,32 +2019,35 @@ body.is-menu-animating .menu-label {
   color: var(--ink);
 }
 
+.about-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
 .about-content p {
+  margin: 0;
   text-wrap: pretty;
 }
 
-/* Desktop: 2-col grid so the middle paragraph drops into the right
-   column, creating an editorial rhythm (left → right → left). */
+/* Desktop: side-by-side columns. Each column is its own flex stack,
+   so paragraphs flow independently — no grid row-tallest artefacts
+   when the two columns hold different numbers of paragraphs. */
 @media (min-width: 768px) {
   .about-content {
     max-width: none;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: var(--space-16);
-    row-gap: var(--space-8);
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-16);
+  }
+
+  .about-col {
+    flex: 1 1 0;
+    gap: var(--space-8);
   }
 
   .about-content p {
     max-width: 48ch;
-  }
-
-  .about-content p:nth-child(1) {
-    grid-column: 1;
-  }
-
-  .about-content p:nth-child(2),
-  .about-content p:nth-child(3) {
-    grid-column: 2;
   }
 }
 
