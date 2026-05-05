@@ -896,6 +896,12 @@ body.is-menu-animating .menu-label {
   .project--sm {
     grid-column: span 4;
   }
+
+  /* Banner-width card spanning the full 12 columns. Used on /work/
+     for the row that shouldn't share its breath with another card. */
+  .project--full {
+    grid-column: 1 / -1;
+  }
 }
 
 .project {
