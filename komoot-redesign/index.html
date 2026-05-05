@@ -160,15 +160,21 @@
       </dl>
     </section>
 
-    <!-- COVER — full-bleed hero media placeholder. Static image goes
-         here once the user uploads a final asset; `--cover` sets the
-         first-paint background while no media is present. -->
+    <!-- COVER — full-bleed hero. Mobile (4:5) and desktop (native
+         landscape) variants served via <picture> so each breakpoint
+         gets an asset that fills its aspect ratio without crop. -->
     <figure class="case-cover">
-      <div
-        class="case-cover-media"
-        style="--cover: #2b1f4a"
-        aria-hidden="true"
-      ></div>
+      <picture>
+        <source
+          media="(max-width: 767px)"
+          srcset="/images/komoot-redesign/showcase-mobile.png"
+        />
+        <img
+          src="/images/komoot-redesign/showcase.png"
+          alt="Komoot Redesign — showcase overview"
+          class="case-cover-media"
+        />
+      </picture>
     </figure>
 
     <!-- CHALLENGE -->
@@ -286,21 +292,16 @@
       </div>
     </section>
 
-    <!-- GALLERY — placeholder blocks, swap for real screens later. -->
-    <section class="case-gallery">
+    <!-- GALLERY — single centered web-redesign showcase. The
+         `--single` modifier collapses the gallery to one column on
+         desktop and lets the image keep its native aspect ratio. -->
+    <section class="case-gallery case-gallery--single">
       <figure class="case-image">
-        <div
+        <img
+          src="/images/komoot-redesign/web-redesign.png"
+          alt="Komoot — web redesign overview"
           class="case-image-media"
-          style="--cover: #3a2a5e"
-          aria-hidden="true"
-        ></div>
-      </figure>
-      <figure class="case-image">
-        <div
-          class="case-image-media"
-          style="--cover: #1f1734"
-          aria-hidden="true"
-        ></div>
+        />
       </figure>
     </section>
 

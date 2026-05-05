@@ -1885,6 +1885,26 @@ body.is-menu-animating .menu-label {
   }
 }
 
+/* Single-image variant: gallery collapses to one centered column.
+   The image fills the gallery's inner width (viewport minus the
+   shared `--header-pad` on both sides), so it reads as wider and
+   more "showcase" than a regular .case-image card while still
+   keeping the same outer margins as the 2-card layout. Native
+   aspect ratio is preserved (no crop). Used on /komoot-redesign/
+   for the web-redesign showcase. */
+.case-gallery--single {
+  grid-template-columns: 1fr;
+  justify-items: stretch;
+}
+
+.case-gallery--single .case-image-media {
+  aspect-ratio: auto;
+  height: auto;
+  width: 100%;
+  object-fit: contain;
+  background: transparent;
+}
+
 /* Next project + "View projects" link at the bottom. Styled as big
    type with a subtle hover state — no thumbnail / cover preview, as
    per brief. */
