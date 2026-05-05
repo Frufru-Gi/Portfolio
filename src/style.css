@@ -84,8 +84,13 @@
   }
 }
 
+/* System-level dark mode. Skipped when the user explicitly picked
+   light via the menu toggle (`data-theme="light"` on <html>), so an
+   explicit override wins over the OS preference. Duplicated below
+   under `:root[data-theme="dark"]` so an explicit dark override
+   works regardless of system preference. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0e0d0c;
     --surface: #1a1816;
     --ink: #ededeb;
@@ -104,6 +109,21 @@
     --menu-fg: #111111;
     --menu-fg-muted: #6b6b6b;
   }
+}
+
+/* Explicit dark override via the menu toggle. Applies regardless of
+   system preference. Same palette as the dark media query above so
+   both paths produce identical rendering. */
+:root[data-theme="dark"] {
+  --bg: #0e0d0c;
+  --surface: #1a1816;
+  --ink: #ededeb;
+  --ink-muted: #8a8884;
+  --line: rgba(255, 255, 255, 0.08);
+  --accent: #e7724f;
+  --menu-bg: #faf8f5;
+  --menu-fg: #111111;
+  --menu-fg-muted: #6b6b6b;
 }
 
 /* ---------- Reset ---------- */
@@ -448,6 +468,80 @@ body[data-menu="open"] .menu-social {
   color: var(--menu-fg);
 }
 
+/* The theme toggle's <li> sits inside .menu-list right after Contact,
+   pushed 32px down so it reads as a separate "settings" beat below
+   the navigation items. The flex column + align-items: flex-end on
+   .menu-list keeps it right-aligned with the rest. */
+.menu-theme-item {
+  margin-top: var(--space-8);
+}
+
+/* Theme toggle — a pill with an outlined track and a filled dot that
+   sits left (light mode) or right (dark mode) to mirror the page's
+   current rendered theme. Visual styling follows menu foreground so
+   it flips correctly whether the menu is dark (light page) or light
+   (dark page). Label text also updates via JS. */
+.menu-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  /* Track sits to the RIGHT of the label — `row-reverse` flips the
+     visual order without needing to swap the HTML across all pages. */
+  flex-direction: row-reverse;
+  gap: var(--space-3);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--menu-fg-muted);
+  cursor: pointer;
+  /* Matches the clip-path reveal of .menu-social a so the toggle
+     rises into view with the same timing on menu open/close. */
+  clip-path: inset(100% 0 0 0);
+  transition:
+    clip-path var(--dur-rise) var(--ease-rise),
+    color var(--dur-fast) var(--ease-out);
+  will-change: clip-path;
+}
+
+.menu-theme-toggle:hover,
+.menu-theme-toggle:focus-visible {
+  color: var(--menu-fg);
+  outline: none;
+}
+
+.menu-theme-track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 32px;
+  height: 18px;
+  padding: 2px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: var(--menu-bg);
+  box-sizing: content-box;
+  flex: none;
+}
+
+.menu-theme-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: currentColor;
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+/* Dot position reflects the *effective* theme (i.e. what the page is
+   actually showing right now), not just the explicit user override.
+   JS keeps `data-effective-theme` in sync with the rendered palette.
+   Travel = track content width (32px) − dot width (12px) = 20px,
+   which lands the dot flush-right with the same 2px visual padding
+   from the border it has on the left. */
+:root[data-effective-theme="dark"] .menu-theme-dot {
+  transform: translateX(20px);
+}
+
 /* Copyright — bottom-left mirror of .menu-social. Same type but a
    fainter color so it sits visually behind the LinkedIn link, mirroring
    the relative contrast between active links and muted footnote text on
@@ -570,6 +664,7 @@ html.is-touch body[data-menu="open"] .menu-toggle .menu-toggle-text {
    reveal happens after the dark background has reached the items. */
 body[data-menu="open"] .menu-list a,
 body[data-menu="open"] .menu-social a,
+body[data-menu="open"] .menu-theme-toggle,
 body[data-menu="open"] .menu-label-text,
 body[data-menu="open"] .menu-copyright {
   clip-path: inset(0);
@@ -590,6 +685,7 @@ body[data-menu="open"] .menu-label {
    visible and graceful but guarantees the text is gone by the time
    the dark bg has rolled away from it. */
 body[data-menu="closing"] .menu-list a,
+body[data-menu="closing"] .menu-theme-toggle,
 body[data-menu="closing"] .menu-label-text {
   clip-path: inset(100% 0 0 0);
   transition: clip-path 0.4s var(--ease-rise);
@@ -615,6 +711,7 @@ body[data-menu="closing"] .menu-copyright {
    closed default — we want the jump to be instantaneous. */
 body[data-menu="closed"] .menu-list a,
 body[data-menu="closed"] .menu-social a,
+body[data-menu="closed"] .menu-theme-toggle,
 body[data-menu="closed"] .menu-label-text,
 body[data-menu="closed"] .menu-copyright {
   transition: none;
@@ -1237,6 +1334,28 @@ body.is-menu-animating .menu-label {
   text-wrap: pretty;
 }
 
+/* Stats line under the lead — compact, bold, slightly larger than
+   body. Acts as a visual anchor for the numbers that matter in the
+   project (e.g. "~3x increase · 800K+ users tested"). Designed to
+   read as a single breath, with the `·` as a natural separator. */
+.case-stats {
+  margin: var(--space-6) 0 0;
+  max-width: 54ch;
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--ink);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+@media (min-width: 768px) {
+  .case-stats {
+    font-size: var(--fs-lg);
+  }
+}
+
 /* Meta grid — Year / Role / Duration / Tools. On desktop it's a
    four-column row of `dt` (muted label) above `dd` (value). Mobile
    stacks to a 2-col grid so the labels stay compact. */
@@ -1313,6 +1432,16 @@ body.is-menu-animating .menu-label {
   object-fit: cover;
 }
 
+/* When a cover/wide image is wrapped in <picture> for breakpoint-
+   specific sources, the picture element itself is inline by default,
+   which breaks the block-level width: 100% of the <img> inside.
+   `display: contents` makes <picture> transparent for layout so the
+   <img> is laid out as if it were a direct child of the figure. */
+.case-cover picture,
+.case-image picture {
+  display: contents;
+}
+
 @media (min-width: 768px) {
   .case-cover-media {
     aspect-ratio: 16 / 10;
@@ -1337,15 +1466,19 @@ body.is-menu-animating .menu-label {
 .case-video-media {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  /* 16:9 at every breakpoint so the 1920×1080 source never gets
+     cropped by object-fit: cover. Mobile in particular used to be
+     4/5 (portrait) which cut the left/right of the frame on phones. */
+  aspect-ratio: 16 / 9;
   background: var(--cover, var(--surface));
   object-fit: cover;
+  /* Drives the restart fade — scheduled by JS by toggling
+     `.is-restarting` on the video element. */
+  transition: opacity 500ms ease;
 }
 
-@media (min-width: 768px) {
-  .case-video-media {
-    aspect-ratio: 16 / 10;
-  }
+.case-video-media.is-restarting {
+  opacity: 0;
 }
 
 /* Wrapper around the video so the overlaid controls position
@@ -1720,8 +1853,27 @@ body.is-menu-animating .menu-label {
   object-fit: cover;
 }
 
+/* Closing wide image: full-bleed edge-to-edge, mirroring the hero
+   cover. Breaks out of the gallery's `padding-inline: --header-pad`
+   via negative margins, and drops border-radius so the corners hit
+   the viewport edges cleanly. Aspect mirrors `.case-cover-media`
+   (4:5 on mobile, 16:10 on desktop); paired mobile/desktop image
+   assets served via <picture> so each breakpoint gets a source that
+   fills its ratio with `object-fit: cover` without cropping. */
+.case-image--wide {
+  margin-inline: calc(var(--header-pad) * -1);
+}
+
 .case-image--wide .case-image-media {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 4 / 5;
+  border-radius: 0;
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .case-image--wide .case-image-media {
+    aspect-ratio: 16 / 10;
+  }
 }
 
 /* Next project + "View projects" link at the bottom. Styled as big

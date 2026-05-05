@@ -9,6 +9,24 @@
       content="Komoot Redesign — a UX/UI and growth project by Giulia Frumento at Bending Spoons."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme");
+          var root = document.documentElement;
+          if (saved === "dark" || saved === "light") {
+            root.setAttribute("data-theme", saved);
+          }
+          var sysDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          root.setAttribute(
+            "data-effective-theme",
+            saved || (sysDark ? "dark" : "light")
+          );
+        } catch (_) {}
+      })();
+    </script>
     <link rel="stylesheet" href="/src/style.css" />
     <script type="module" src="/src/main.js"></script>
   </head>
@@ -76,6 +94,20 @@
           <a href="mailto:giuliashara.frumento@gmail.com" data-menu-link
             >Contact</a
           >
+        </li>
+        <li class="menu-theme-item">
+          <button
+            class="menu-theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-pressed="false"
+            aria-label="Switch to dark mode"
+          >
+            <span class="menu-theme-track" aria-hidden="true">
+              <span class="menu-theme-dot"></span>
+            </span>
+            <span class="menu-theme-label">Dark mode</span>
+          </button>
         </li>
       </ul>
       <ul class="menu-social">
@@ -228,6 +260,22 @@
           patterns and core workflows were preserved on purpose. People
           needed to recognize their app on the morning after the
           launch.
+        </p>
+        <p>
+          But none of this would have shipped without
+          <strong
+            >owning the work end to end with the engineering team</strong
+          >. I spent as much time in stand-ups and Slack threads as I
+          did in Figma — running daily syncs with iOS, Android and Web
+          devs, doing live QA against staging builds, prioritizing the
+          backlog as a de-facto PM, and using Cursor to fix small
+          frontend issues myself when it was faster than waiting for a
+          hand-off. The codebase was old, every change had a cost, and
+          the only way to keep the redesign moving was to be in the
+          room (or the thread) when those costs got negotiated. A lot
+          of the project was that: ten Figma screens and a hundred
+          small calls about which of them were worth what they would
+          take to build.
         </p>
         <p>
           The harder calls were the quiet ones. Knowing what to leave

@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remini — One-Tap Edits — Giulia Frumento</title>
+    <meta
+      name="description"
+      content="Remini — One-Tap Edits: how a fifteen-year-old AI photo app explored conversational editing, found the chat wasn't the answer, and reshaped the interaction model into something three times more effective."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme");
+          var root = document.documentElement;
+          if (saved === "dark" || saved === "light") {
+            root.setAttribute("data-theme", saved);
+          }
+          var sysDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          root.setAttribute(
+            "data-effective-theme",
+            saved || (sysDark ? "dark" : "light")
+          );
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="/src/style.css" />
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body data-menu="closed">
+    <!-- MENU-TRANSITION BOOTSTRAP (see index.html for full comment) -->
+    <script>
+      (function () {
+        try {
+          var ts = parseInt(
+            sessionStorage.getItem("menu-transition-nav") || "0",
+            10
+          );
+          if (!ts) return;
+          sessionStorage.removeItem("menu-transition-nav");
+          if (Date.now() - ts > 3000) return;
+        } catch (_) {
+          return;
+        }
+
+        var body = document.body;
+        body.dataset.menu = "open";
+        body.classList.add("is-menu-animating");
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            body.dataset.menu = "closing";
+            setTimeout(function () {
+              body.dataset.menu = "closed";
+              body.classList.remove("is-menu-animating");
+            }, 700);
+          });
+        });
+      })();
+    </script>
+
+    <!-- HEADER -->
+    <header class="site-header">
+      <a href="/" class="logo">Giulia Frumento</a>
+      <button
+        class="menu-label"
+        type="button"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <span class="menu-label-text">Menu</span>
+      </button>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="site-menu"
+      >
+        <span class="menu-toggle-text" aria-hidden="true">Back</span>
+        <span class="menu-toggle-dot" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <!-- MENU OVERLAY -->
+    <nav id="site-menu" class="site-menu" aria-hidden="true">
+      <ul class="menu-list">
+        <li><a href="/" data-menu-link>Home</a></li>
+        <li><a href="/work/" data-menu-link>Work</a></li>
+        <li><a href="/about/" data-menu-link>About</a></li>
+        <li>
+          <a href="mailto:giuliashara.frumento@gmail.com" data-menu-link
+            >Contact</a
+          >
+        </li>
+        <li class="menu-theme-item">
+          <button
+            class="menu-theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-pressed="false"
+            aria-label="Switch to dark mode"
+          >
+            <span class="menu-theme-track" aria-hidden="true">
+              <span class="menu-theme-dot"></span>
+            </span>
+            <span class="menu-theme-label">Dark mode</span>
+          </button>
+        </li>
+      </ul>
+      <ul class="menu-social">
+        <li>
+          <a
+            href="https://www.linkedin.com/in/gs-frumento/"
+            target="_blank"
+            rel="noopener"
+            data-menu-link
+            >LinkedIn</a
+          >
+        </li>
+      </ul>
+      <p class="menu-copyright">
+        © 2026 Giulia Shara Frumento. All rights reserved.
+      </p>
+    </nav>
+
+    <!-- CASE HERO — big serif title with a small eyebrow above it,
+         prominent stats line under the lead. -->
+    <section class="case-hero">
+      <p class="case-eyebrow">
+        2026 — Ongoing · UX/UI · Product · Bending Spoons
+      </p>
+      <h1 class="case-title">Remini — One-Tap Edits</h1>
+      <p class="case-lead">
+        How a fifteen-year-old AI photo app explored conversational
+        editing, found that the chat wasn't the answer, and reshaped
+        the interaction model into something faster, simpler, and
+        three times more effective.
+      </p>
+    </section>
+
+    <!-- META GRID — Year · Role · Tools (no Scope on this case) -->
+    <section class="case-meta">
+      <dl class="case-meta-list">
+        <div class="case-meta-row">
+          <dt>Year</dt>
+          <dd>2026 — Ongoing</dd>
+        </div>
+        <div class="case-meta-row">
+          <dt>Role</dt>
+          <dd>Product Designer · Acting PM on AI Edits</dd>
+        </div>
+        <div class="case-meta-row">
+          <dt>Tools</dt>
+          <dd>Figma, FigJam, Cursor, Notion, BigQuery</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- COVER — full-bleed hero media placeholder. Static image goes
+         here once the user uploads a final asset; `--cover` sets the
+         first-paint background while no media is present. -->
+    <figure class="case-cover">
+      <div
+        class="case-cover-media"
+        style="--cover: #1a1d24"
+        aria-hidden="true"
+      ></div>
+    </figure>
+
+    <!-- CHALLENGE -->
+    <section class="case-section">
+      <h2 class="case-section-title">The challenge</h2>
+      <div class="case-section-body">
+        <p>
+          Remini built its name on one thing: a button that fixed your
+          photo. Tap, wait, done. That simplicity carried the product
+          to over 100 million downloads — but a decade in, the AI
+          photo space had moved on. New competitors were shipping
+          conversational editors where users could <em>describe</em>
+          what they wanted in natural language, and the question for
+          Remini wasn't whether to follow, but how.
+        </p>
+        <p>
+          The brief I started from was open: bring Remini into the
+          conversational AI era. The first hypothesis was the obvious
+          one — let users talk to their photos. Type "make it
+          brighter," "remove the background," "give me a 90s look,"
+          and the AI does it. We built it. We shipped it as Textual
+          Edits. And then we ran the experiment.
+        </p>
+      </div>
+    </section>
+
+    <!-- THE FIRST TRY -->
+    <section class="case-section">
+      <h2 class="case-section-title">The first try: Textual Edits</h2>
+      <div class="case-section-body">
+        <p>
+          The first version of Textual Edits put the prompt at the
+          center. A user uploaded a photo, opened the editor, and saw
+          an empty input box waiting for them to describe their edit.
+          Below it, a row of suggested prompts to nudge them in. Above
+          it, the photo. Pure conversational interaction, with the
+          suggestions as a soft fallback.
+        </p>
+        <p>
+          We A/B-tested it against the existing AI Edits flow on
+          <strong>800,000+ new users</strong> between December 2025
+          and April 2026. The result was both surprising and
+          clarifying: on the metrics that mattered to the business,
+          the two flows were essentially indistinguishable. Trial rate
+          was the same (~12.7% in both arms). Paid conversion was the
+          same (~3% in both arms). Revenue per user was the same. The
+          chat experience wasn't winning, but it wasn't losing either.
+        </p>
+        <p>
+          The interesting signal was inside the funnel. Textual Edits
+          had a higher save completion rate than AI Edits — but the
+          way users got there told a different story. A large share
+          of the prompts users typed were vague, off-brand, or
+          produced results they didn't want to keep. The chat had
+          given them total freedom, and total freedom turned out to
+          be the friction.
+        </p>
+      </div>
+    </section>
+
+    <!-- GALLERY — placeholder blocks, swap for real screens later. -->
+    <section class="case-gallery">
+      <figure class="case-image">
+        <div
+          class="case-image-media"
+          style="--cover: #242830"
+          aria-hidden="true"
+        ></div>
+      </figure>
+      <figure class="case-image">
+        <div
+          class="case-image-media"
+          style="--cover: #14171c"
+          aria-hidden="true"
+        ></div>
+      </figure>
+    </section>
+
+    <!-- THE INSIGHT -->
+    <section class="case-section">
+      <h2 class="case-section-title">The insight</h2>
+      <div class="case-section-body">
+        <p>
+          It took looking at the numbers next to the qualitative
+          behavior to see it. Users didn't want a blank canvas. They
+          wanted to be <em>guided</em> into making something good —
+          fast. The chat had reframed the editor as a writing
+          exercise; what users actually wanted was a starting point.
+        </p>
+        <p>
+          The conclusion shaped the next iteration: the value of an
+          AI editor isn't the input method. It's how quickly the user
+          gets to a result they're proud of.
+        </p>
+      </div>
+    </section>
+
+    <!-- THE PIVOT -->
+    <section class="case-section">
+      <h2 class="case-section-title">The pivot: One-Tap Edits</h2>
+      <div class="case-section-body">
+        <p>
+          For the new flow, I redesigned AI Edits around a single
+          principle:
+          <strong
+            >one tap to a starting point, one line to refine it</strong
+          >. The empty prompt was gone. The new entry point led with
+          a curated set of presets — pre-trained, brand-safe,
+          optimized for the kinds of edits Remini users actually
+          save. The prompt input stayed, but as a second move: a
+          refinement, not a starting state. One line, expandable,
+          never required.
+        </p>
+        <p>
+          The interaction reads in a single glance: pick a preset,
+          see the result, optionally refine in a line, save. Nothing
+          in the way.
+        </p>
+      </div>
+    </section>
+
+    <!-- EARLY OUTCOME -->
+    <section class="case-section">
+      <h2 class="case-section-title">Early outcome</h2>
+      <div class="case-section-body">
+        <p>
+          The new flow has been live as an experiment since late
+          April 2026, with <strong>200K+ users</strong> in the test
+          cells. Five days into the rollout, the first-pass numbers
+          are strong:
+        </p>
+        <ul>
+          <li>
+            <strong>~3x increase in edit completion</strong> vs. the
+            previous AI Edits flow
+          </li>
+          <li>
+            <strong>Trial-to-paid conversion held steady</strong> at
+            the same rate as the control
+          </li>
+          <li>
+            Engagement with the refinement line is meaningful but
+            secondary — most users save after the preset, exactly as
+            the design predicted
+          </li>
+        </ul>
+        <p>
+          These are early-stage numbers and the experiment is still
+          iterating. But the direction is clear enough that the team
+          is already designing follow-up tests around the One-Tap
+          model — extending it to other edit surfaces and exploring
+          how far the "guided plus refinable" pattern can go.
+        </p>
+      </div>
+    </section>
+
+    <!-- WHAT I LEARNED -->
+    <section class="case-section">
+      <h2 class="case-section-title">What I learned</h2>
+      <div class="case-section-body">
+        <p>
+          The instinct to chase the new interaction paradigm — chat,
+          in this case — is strong, especially when competitors are
+          doing it. But the lesson from Textual Edits was that
+          <strong
+            >the right paradigm depends on what the user is actually
+            trying to do</strong
+          >. Remini users aren't typing. They're scrolling, tapping,
+          picking. The interaction model has to meet that reality,
+          not fight it.
+        </p>
+        <p>
+          I learned to trust funnels more than features, and
+          qualitative feedback more than analogies to other products.
+          And I learned that in AI design, the hardest design
+          decision is often <em>how much agency to give the user</em>
+          — too little feels patronizing, too much feels like work.
+          The space between is where the best AI products live.
+        </p>
+      </div>
+    </section>
+
+    <!-- CLOSING IMAGE — full-width visual payoff, mirrors the
+         .case-image--wide pattern used on Mosaic. Swap the placeholder
+         for a real image once the asset exists. -->
+    <section class="case-gallery">
+      <figure class="case-image case-image--wide">
+        <div
+          class="case-image-media"
+          style="--cover: #14171c"
+          aria-hidden="true"
+        ></div>
+      </figure>
+    </section>
+
+    <!-- NEXT PROJECT + back to work -->
+    <section class="case-next">
+      <a href="/project-04/" class="case-next-link" data-menu-link>
+        <span class="case-next-label">Next project</span>
+        <span class="case-next-title"
+          >Project 04<span class="case-next-arrow" aria-hidden="true"
+            >→</span
+          ></span
+        >
+      </a>
+      <a href="/work/" class="case-next-secondary" data-menu-link>
+        View projects
+      </a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <p>© 2026 Giulia Shara Frumento. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="mailto:giuliashara.frumento@gmail.com"
+          >giuliashara.frumento@gmail.com</a
+        >
+        <a
+          href="https://www.linkedin.com/in/gs-frumento/"
+          target="_blank"
+          rel="noopener"
+          >LinkedIn</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>

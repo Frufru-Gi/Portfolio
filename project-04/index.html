@@ -9,6 +9,24 @@
       content="Project 04 — coming soon. A case study by Giulia Frumento."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme");
+          var root = document.documentElement;
+          if (saved === "dark" || saved === "light") {
+            root.setAttribute("data-theme", saved);
+          }
+          var sysDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          root.setAttribute(
+            "data-effective-theme",
+            saved || (sysDark ? "dark" : "light")
+          );
+        } catch (_) {}
+      })();
+    </script>
     <link rel="stylesheet" href="/src/style.css" />
     <script type="module" src="/src/main.js"></script>
   </head>
@@ -73,6 +91,20 @@
           <a href="mailto:giuliashara.frumento@gmail.com" data-menu-link
             >Contact</a
           >
+        </li>
+        <li class="menu-theme-item">
+          <button
+            class="menu-theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-pressed="false"
+            aria-label="Switch to dark mode"
+          >
+            <span class="menu-theme-track" aria-hidden="true">
+              <span class="menu-theme-dot"></span>
+            </span>
+            <span class="menu-theme-label">Dark mode</span>
+          </button>
         </li>
       </ul>
       <ul class="menu-social">

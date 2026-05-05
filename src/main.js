@@ -16,6 +16,75 @@ if (
   document.documentElement.classList.add("is-touch");
 }
 
+// ---------------------------------------------------------------------------
+// Theme toggle
+// ---------------------------------------------------------------------------
+// The inline <head> bootstrap has already set `data-theme` (if saved) and
+// `data-effective-theme` (always) on <html>. Here we wire the menu toggle
+// button to flip the theme on click, persist it, and keep the effective-
+// theme attribute in sync so the dot position + label stay correct.
+// Also listens to system preference changes: if the user hasn't explicitly
+// picked a theme (no data-theme), follow the OS in real time.
+(function () {
+  const root = document.documentElement;
+  const sysMq =
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+
+  const currentEffectiveTheme = () => {
+    const explicit = root.getAttribute("data-theme");
+    if (explicit === "light" || explicit === "dark") return explicit;
+    return sysMq && sysMq.matches ? "dark" : "light";
+  };
+
+  const updateToggleUi = (theme) => {
+    document.querySelectorAll("[data-theme-toggle]").forEach((btn) => {
+      const label = btn.querySelector(".menu-theme-label");
+      if (label) {
+        label.textContent = theme === "dark" ? "Dark mode" : "Light mode";
+      }
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      btn.setAttribute(
+        "aria-label",
+        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+      );
+    });
+  };
+
+  // Init — ensure UI matches whatever theme the bootstrap applied.
+  const initTheme = currentEffectiveTheme();
+  if (!root.getAttribute("data-effective-theme")) {
+    root.setAttribute("data-effective-theme", initTheme);
+  }
+  updateToggleUi(initTheme);
+
+  document.querySelectorAll("[data-theme-toggle]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = currentEffectiveTheme() === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      root.setAttribute("data-effective-theme", next);
+      try {
+        localStorage.setItem("theme", next);
+      } catch (e) {
+        /* storage may be disabled (private mode, etc.) — noop */
+      }
+      updateToggleUi(next);
+    });
+  });
+
+  // If the user hasn't explicitly picked a theme, follow the system
+  // preference as it changes (dark/light toggle in OS settings).
+  if (sysMq) {
+    const onChange = () => {
+      if (root.getAttribute("data-theme")) return; // user override wins
+      const effective = sysMq.matches ? "dark" : "light";
+      root.setAttribute("data-effective-theme", effective);
+      updateToggleUi(effective);
+    };
+    if (sysMq.addEventListener) sysMq.addEventListener("change", onChange);
+    else if (sysMq.addListener) sysMq.addListener(onChange);
+  }
+})();
+
 // Respect prefers-reduced-motion: pause any autoplaying videos so the
 // poster frame stays on screen instead of looping motion.
 const prefersReducedMotion =
@@ -176,8 +245,46 @@ document.querySelectorAll(".case-video-frame").forEach((frame) => {
         document.fullscreenElement === frame ||
         document.webkitFullscreenElement === frame;
 
+      // Best-effort screen-orientation lock/unlock. Works on Android
+      // Chrome (locks landscape for a landscape video); iOS Safari
+      // handles rotation natively via webkitEnterFullscreen, and
+      // desktop browsers reject the lock silently. All branches are
+      // wrapped in try/catch because the API throws synchronously
+      // when called outside an activation or without fullscreen.
+      const lockLandscape = () => {
+        try {
+          if (
+            screen.orientation &&
+            typeof screen.orientation.lock === "function"
+          ) {
+            const r = screen.orientation.lock("landscape");
+            if (r && typeof r.catch === "function") {
+              r.catch(() => {
+                /* unsupported on this platform — ignore */
+              });
+            }
+          }
+        } catch (e) {
+          /* noop */
+        }
+      };
+
+      const unlockOrientation = () => {
+        try {
+          if (
+            screen.orientation &&
+            typeof screen.orientation.unlock === "function"
+          ) {
+            screen.orientation.unlock();
+          }
+        } catch (e) {
+          /* noop */
+        }
+      };
+
       fullscreenBtn.addEventListener("click", () => {
         if (isInFullscreen()) {
+          unlockOrientation();
           if (typeof document.exitFullscreen === "function") {
             document.exitFullscreen();
           } else if (typeof document.webkitExitFullscreen === "function") {
@@ -188,19 +295,27 @@ document.querySelectorAll(".case-video-frame").forEach((frame) => {
             frame.requestFullscreen || frame.webkitRequestFullscreen;
           try {
             const result = req.call(frame);
-            if (result && typeof result.catch === "function") {
-              result.catch(() => {
+            if (result && typeof result.then === "function") {
+              // Modern promise-returning API — lock orientation after
+              // the browser has committed to the fullscreen state.
+              result.then(lockLandscape).catch(() => {
                 /* user dismissed or policy blocked */
               });
+            } else {
+              // Legacy sync API (older WebKit): try the lock right
+              // after calling, accepting that it may fail if the
+              // fullscreen transition hasn't completed yet.
+              lockLandscape();
             }
           } catch (e) {
             /* noop */
           }
         } else if (canRequestOnVideo) {
           // iOS Safari path — fullscreen the video directly. Native
-          // player chrome appears; our overlay is not visible in that
-          // mode, which is fine because iOS users already expect the
-          // OS-level fullscreen player.
+          // player chrome appears and iOS rotates automatically if
+          // the video is landscape, so we don't need the orientation
+          // lock branch here. Our overlay is not visible in that
+          // mode, which matches iOS user expectations.
           try {
             video.webkitEnterFullscreen();
           } catch (e) {
@@ -210,7 +325,13 @@ document.querySelectorAll(".case-video-frame").forEach((frame) => {
       });
 
       // Sync icon + aria when the user exits via ESC or browser UI.
-      const onFullscreenChange = () => setFullscreenState(isInFullscreen());
+      // Also release any orientation lock on exit so the device goes
+      // back to the user's orientation preference.
+      const onFullscreenChange = () => {
+        const fs = isInFullscreen();
+        setFullscreenState(fs);
+        if (!fs) unlockOrientation();
+      };
       document.addEventListener("fullscreenchange", onFullscreenChange);
       document.addEventListener(
         "webkitfullscreenchange",
@@ -375,40 +496,52 @@ document.querySelectorAll(".case-video-frame").forEach((frame) => {
   // --- Scroll-driven auto-play + soft-loop on end -------------------------
   // Play muted when the video is at least 40% visible; pause when it
   // leaves the viewport entirely. Skip auto-play on reduced-motion.
-  // When the video ends (in view, not user-paused), soft-loop: wait
-  // a few seconds so the last frame has time to land, then rewind
-  // and play again. Any user action cancels the pending restart.
+  // When the video ends (in view, not user-paused), immediately fade
+  // out → rewind invisibly → play + fade back in. Any user action
+  // cancels the in-flight fade and restores opacity right away.
   let isInView = false;
-  let restartTimer = 0;
-  const RESTART_DELAY_MS = 4000;
+  let fadeTimer = 0;
+  const FADE_MS = 500;
 
   const cancelRestart = () => {
-    if (restartTimer) {
-      clearTimeout(restartTimer);
-      restartTimer = 0;
+    if (fadeTimer) {
+      clearTimeout(fadeTimer);
+      fadeTimer = 0;
     }
+    // Reset opacity immediately — if the user interacts mid-fade we
+    // don't want the video stuck invisible.
+    video.classList.remove("is-restarting");
   };
 
   const scheduleRestart = () => {
     cancelRestart();
     if (prefersReducedMotion || userPausedIntentionally || !isInView) return;
-    restartTimer = setTimeout(() => {
-      restartTimer = 0;
-      // Re-check state at fire time — the user may have paused,
-      // scrolled away, or reduced-motion may have been applied in
-      // the meantime.
+    // Fade out, then rewind + play (the video element's opacity
+    // transition makes the rewind invisible), then fade back in as
+    // the video starts playing again.
+    video.classList.add("is-restarting");
+    fadeTimer = setTimeout(() => {
+      fadeTimer = 0;
+      // Re-check at the end of the fade — the user may have paused,
+      // scrolled away, or reduced-motion may have been applied.
       if (
-        !userPausedIntentionally &&
-        isInView &&
-        video.ended &&
-        !prefersReducedMotion
+        userPausedIntentionally ||
+        !isInView ||
+        prefersReducedMotion ||
+        !video.ended
       ) {
-        video.currentTime = 0;
-        video.play().catch(() => {
-          /* autoplay may still be blocked — stay silent */
-        });
+        video.classList.remove("is-restarting");
+        return;
       }
-    }, RESTART_DELAY_MS);
+      video.currentTime = 0;
+      const playPromise = video.play();
+      const fadeIn = () => video.classList.remove("is-restarting");
+      if (playPromise && typeof playPromise.then === "function") {
+        playPromise.then(fadeIn).catch(fadeIn);
+      } else {
+        fadeIn();
+      }
+    }, FADE_MS);
   };
 
   video.addEventListener("ended", scheduleRestart);

@@ -9,6 +9,30 @@
       content="UX/UI Designer based in Italy. Currently designing at Bending Spoons."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- THEME BOOTSTRAP — runs synchronously BEFORE the stylesheet
+         link so a saved explicit theme (light/dark) is applied to
+         <html> before CSS evaluates, avoiding any flash of the wrong
+         palette. Also writes `data-effective-theme` for UI state
+         (toggle dot position, label) regardless of whether the user
+         has overridden or is following the system preference. -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme");
+          var root = document.documentElement;
+          if (saved === "dark" || saved === "light") {
+            root.setAttribute("data-theme", saved);
+          }
+          var sysDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          root.setAttribute(
+            "data-effective-theme",
+            saved || (sysDark ? "dark" : "light")
+          );
+        } catch (_) {}
+      })();
+    </script>
     <link rel="stylesheet" href="/src/style.css" />
     <script type="module" src="/src/main.js"></script>
   </head>
@@ -87,6 +111,20 @@
         <li><a href="/about/" data-menu-link>About</a></li>
         <li>
           <a href="mailto:giuliashara.frumento@gmail.com" data-menu-link>Contact</a>
+        </li>
+        <li class="menu-theme-item">
+          <button
+            class="menu-theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-pressed="false"
+            aria-label="Switch to dark mode"
+          >
+            <span class="menu-theme-track" aria-hidden="true">
+              <span class="menu-theme-dot"></span>
+            </span>
+            <span class="menu-theme-label">Dark mode</span>
+          </button>
         </li>
       </ul>
       <ul class="menu-social">
@@ -199,15 +237,15 @@
 
           <li
             class="slide"
-            style="--cover: #131211"
+            style="--cover: #1a1d24"
             aria-roledescription="slide"
-            aria-label="3 of 4: Remini Reshot"
-            data-slide-title="Remini Reshot"
+            aria-label="3 of 4: Remini — One-Tap Edits"
+            data-slide-title="Remini — One-Tap Edits"
           >
             <a
-              href="/remini-reshot/"
+              href="/remini-one-tap-edits/"
               class="slide-link"
-              aria-label="Remini Reshot"
+              aria-label="Remini — One-Tap Edits"
             >
               <div class="slide-cover" aria-hidden="true"></div>
             </a>

@@ -9,6 +9,24 @@
       content="Selected work by Giulia Frumento — UX/UI projects shipped at Bending Spoons."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme");
+          var root = document.documentElement;
+          if (saved === "dark" || saved === "light") {
+            root.setAttribute("data-theme", saved);
+          }
+          var sysDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          root.setAttribute(
+            "data-effective-theme",
+            saved || (sysDark ? "dark" : "light")
+          );
+        } catch (_) {}
+      })();
+    </script>
     <link rel="stylesheet" href="/src/style.css" />
     <script type="module" src="/src/main.js"></script>
   </head>
@@ -88,6 +106,20 @@
         <li>
           <a href="mailto:giuliashara.frumento@gmail.com" data-menu-link>Contact</a>
         </li>
+        <li class="menu-theme-item">
+          <button
+            class="menu-theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-pressed="false"
+            aria-label="Switch to dark mode"
+          >
+            <span class="menu-theme-track" aria-hidden="true">
+              <span class="menu-theme-dot"></span>
+            </span>
+            <span class="menu-theme-label">Dark mode</span>
+          </button>
+        </li>
       </ul>
       <ul class="menu-social">
         <li>
@@ -147,12 +179,14 @@
           </a>
         </li>
 
-        <li class="project project--sm" style="--cover: #131211">
-          <a href="/remini-reshot/" class="project-link">
+        <li class="project project--sm" style="--cover: #1a1d24">
+          <a href="/remini-one-tap-edits/" class="project-link">
             <div class="project-cover" aria-hidden="true"></div>
             <div class="project-overlay">
-              <h3 class="project-title">Remini Reshot</h3>
-              <p class="project-category">UX/UI · AI Feature</p>
+              <h3 class="project-title">Remini — One-Tap Edits</h3>
+              <p class="project-category">
+                2026 — Ongoing · UX/UI · Product · AI
+              </p>
             </div>
           </a>
         </li>

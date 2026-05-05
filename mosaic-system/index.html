@@ -9,6 +9,24 @@
       content="Mosaic System — a design-system project by Giulia Frumento at Bending Spoons."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme");
+          var root = document.documentElement;
+          if (saved === "dark" || saved === "light") {
+            root.setAttribute("data-theme", saved);
+          }
+          var sysDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          root.setAttribute(
+            "data-effective-theme",
+            saved || (sysDark ? "dark" : "light")
+          );
+        } catch (_) {}
+      })();
+    </script>
     <link rel="stylesheet" href="/src/style.css" />
     <script type="module" src="/src/main.js"></script>
   </head>
@@ -74,6 +92,20 @@
             >Contact</a
           >
         </li>
+        <li class="menu-theme-item">
+          <button
+            class="menu-theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-pressed="false"
+            aria-label="Switch to dark mode"
+          >
+            <span class="menu-theme-track" aria-hidden="true">
+              <span class="menu-theme-dot"></span>
+            </span>
+            <span class="menu-theme-label">Dark mode</span>
+          </button>
+        </li>
       </ul>
       <ul class="menu-social">
         <li>
@@ -127,11 +159,20 @@
     </section>
 
     <figure class="case-cover">
-      <img
-        src="/images/mosaic-system/showcase.png"
-        alt="Mosaic System — showcase overview"
-        class="case-cover-media"
-      />
+      <!-- Paired mobile (4:5) + desktop (native landscape) sources so
+           each breakpoint receives an asset that fills its own
+           aspect ratio without the content getting zoomed/cropped. -->
+      <picture>
+        <source
+          media="(max-width: 767px)"
+          srcset="/images/mosaic-system/showcase-mobile.png"
+        />
+        <img
+          src="/images/mosaic-system/showcase.png"
+          alt="Mosaic System — showcase overview"
+          class="case-cover-media"
+        />
+      </picture>
     </figure>
 
     <section class="case-section">
@@ -231,11 +272,21 @@
         />
       </figure>
       <figure class="case-image case-image--wide">
-        <img
-          src="/images/mosaic-system/apps.png"
-          alt="Mosaic System — apps using the library"
-          class="case-image-media"
-        />
+        <!-- Mobile gets a 4:5 version; desktop keeps the native
+             landscape `apps.png`. `object-fit: cover` still fills
+             the container at both breakpoints with zero crop since
+             each source already matches its target ratio. -->
+        <picture>
+          <source
+            media="(max-width: 767px)"
+            srcset="/images/mosaic-system/apps-mobile.png"
+          />
+          <img
+            src="/images/mosaic-system/apps.png"
+            alt="Mosaic System — apps using the library"
+            class="case-image-media"
+          />
+        </picture>
       </figure>
     </section>
 
@@ -306,11 +357,17 @@
     </section>
 
     <section class="case-next">
-      <a href="/remini-reshot/" class="case-next-link" data-menu-link>
+      <a href="/remini-one-tap-edits/" class="case-next-link" data-menu-link>
         <span class="case-next-label">Next project</span>
+        <!-- "Edits" + arrow wrapped in a nowrap span so the line breaks
+             before them as a unit when the title doesn't fit on one
+             line — prevents the arrow from hanging as an orphan. -->
         <span class="case-next-title"
-          >Remini Reshot<span class="case-next-arrow" aria-hidden="true"
-            >→</span
+          >Remini — One-Tap
+          <span style="white-space: nowrap"
+            >Edits<span class="case-next-arrow" aria-hidden="true"
+              >→</span
+            ></span
           ></span
         >
       </a>

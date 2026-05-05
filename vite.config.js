@@ -14,7 +14,7 @@ export default defineConfig({
         about: "about/index.html",
         komootRedesign: "komoot-redesign/index.html",
         mosaicSystem: "mosaic-system/index.html",
-        reminiReshot: "remini-reshot/index.html",
+        reminiOneTapEdits: "remini-one-tap-edits/index.html",
         project04: "project-04/index.html",
       },
     },
