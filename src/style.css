@@ -533,12 +533,13 @@ body[data-menu="open"] .menu-social {
 }
 
 /* Dot position reflects the *effective* theme (i.e. what the page is
-   actually showing right now), not just the explicit user override.
-   JS keeps `data-effective-theme` in sync with the rendered palette.
+   actually showing right now). Light mode = dot at right (the "lit"
+   end of the track), dark mode = dot at left (the "dim" end). JS
+   keeps `data-effective-theme` in sync with the rendered palette.
    Travel = track content width (32px) − dot width (12px) = 20px,
    which lands the dot flush-right with the same 2px visual padding
    from the border it has on the left. */
-:root[data-effective-theme="dark"] .menu-theme-dot {
+:root[data-effective-theme="light"] .menu-theme-dot {
   transform: translateX(20px);
 }
 
@@ -1170,7 +1171,10 @@ body.is-menu-animating .menu-label {
   height: 110px;
   border-radius: 50%;
   background: var(--ink);
-  color: var(--on-dark);
+  /* Pair with --ink (ink/bg are inverse pairs in both themes), so the
+     text always contrasts the chip's background — light text in light
+     mode (dark chip), dark text in dark mode (light chip). */
+  color: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
