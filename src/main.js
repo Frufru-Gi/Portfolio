@@ -771,6 +771,15 @@ if (slideshow) {
       slides.forEach((slide, i) => {
         slide.toggleAttribute("aria-hidden", i !== userIndex);
       });
+      // If the active slide carries `data-light-cover="true"` (i.e.
+      // the cover image is light enough that white arrows would
+      // disappear), flag the floating cursor so its prev/next
+      // glyphs flip to a dark color via CSS.
+      if (cursorEl) {
+        const isLight =
+          slides[userIndex].dataset.lightCover === "true";
+        cursorEl.classList.toggle("is-on-light", isLight);
+      }
     };
 
     // Jump trackPos to a new position with NO transition. Used at the

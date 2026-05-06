@@ -157,15 +157,17 @@
       </dl>
     </section>
 
-    <!-- COVER — full-bleed hero media placeholder. Static image goes
-         here once the user uploads a final asset; `--cover` sets the
-         first-paint background while no media is present. -->
-    <figure class="case-cover">
-      <div
+    <!-- COVER — full-bleed hero. The `--cover` color stays as a
+         first-paint background until the image decodes. The
+         `case-cover--landscape` modifier loosens the mobile crop so
+         a landscape source asset (no dedicated mobile variant) doesn't
+         get over-zoomed by the default 4:5 portrait ratio. -->
+    <figure class="case-cover case-cover--landscape" style="--cover: #1a1d24">
+      <img
+        src="/images/remini-one-tap-edits/hero.png"
+        alt="Remini — One-Tap Edits hero"
         class="case-cover-media"
-        style="--cover: #1a1d24"
-        aria-hidden="true"
-      ></div>
+      />
     </figure>
 
     <!-- CHALLENGE -->
@@ -226,21 +228,29 @@
       </div>
     </section>
 
-    <!-- GALLERY — placeholder blocks, swap for real screens later. -->
+    <!-- GALLERY — both slots locked to 4:5 portrait so heights match.
+         First slot: Textual Edits demo video at native 4:5 (full
+         screen visible). Second slot: placeholder for a portrait
+         image at the same aspect — drop a 4:5 asset here when ready. -->
     <section class="case-gallery">
-      <figure class="case-image">
-        <div
+      <figure class="case-image case-image--portrait">
+        <video
           class="case-image-media"
-          style="--cover: #242830"
-          aria-hidden="true"
-        ></div>
+          src="/images/remini-one-tap-edits/textual-edits.mp4"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          aria-label="Textual Edits — UI walkthrough"
+        ></video>
       </figure>
-      <figure class="case-image">
-        <div
+      <figure class="case-image case-image--portrait">
+        <img
+          src="/images/remini-one-tap-edits/one-tap-edits.png"
+          alt="One-Tap Edits — preset-driven flow"
           class="case-image-media"
-          style="--cover: #14171c"
-          aria-hidden="true"
-        ></div>
+        />
       </figure>
     </section>
 
@@ -346,19 +356,6 @@
           The space between is where the best AI products live.
         </p>
       </div>
-    </section>
-
-    <!-- CLOSING IMAGE — full-width visual payoff, mirrors the
-         .case-image--wide pattern used on Mosaic. Swap the placeholder
-         for a real image once the asset exists. -->
-    <section class="case-gallery">
-      <figure class="case-image case-image--wide">
-        <div
-          class="case-image-media"
-          style="--cover: #14171c"
-          aria-hidden="true"
-        ></div>
-      </figure>
     </section>
 
     <!-- NEXT PROJECT + back to work -->

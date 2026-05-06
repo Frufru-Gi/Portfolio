@@ -1223,6 +1223,27 @@ body.is-menu-animating .menu-label {
     0 1px 3px rgb(0 0 0 / 0.18);
 }
 
+/* When the active slide carries a light cover image (flagged by the
+   slideshow JS via `data-light-cover="true"` on the slide), flip the
+   prev/next arrow color to a deep ink and invert the halo so the
+   glyphs stay legible against a bright background. */
+.slideshow-cursor.is-on-light[data-zone="prev"],
+.slideshow-cursor.is-on-light[data-zone="next"] {
+  color: #111;
+  text-shadow:
+    0 6px 24px rgb(255 255 255 / 0.45),
+    0 1px 3px rgb(255 255 255 / 0.35);
+}
+
+/* Same trigger for the central "View project" chip: pin it to the
+   light-mode palette (dark chip + cream text) regardless of the
+   page's current theme — a dark-mode chip would be white-on-cream
+   over the light Komoot cover and disappear. */
+.slideshow-cursor.is-on-light[data-zone="view"] {
+  background: #111;
+  color: #faf8f5;
+}
+
 /* Touch / no-hover: never show. Native cursor isn't an issue there
    anyway (taps go straight to the slide link). */
 @media (hover: none), (pointer: coarse) {
@@ -1447,13 +1468,26 @@ body.is-menu-animating .menu-label {
    `display: contents` makes <picture> transparent for layout so the
    <img> is laid out as if it were a direct child of the figure. */
 .case-cover picture,
-.case-image picture {
+.case-image picture,
+.project-cover picture,
+.slide-cover picture {
   display: contents;
 }
 
 @media (min-width: 768px) {
   .case-cover-media {
     aspect-ratio: 16 / 10;
+  }
+}
+
+/* Modifier for hero covers whose source asset is natively landscape
+   and that don't ship a dedicated mobile variant. Loosens the mobile
+   crop from 4:5 (portrait) to 1:1 (square) so `object-fit: cover`
+   doesn't over-zoom into the centre of a wide image on small screens.
+   Desktop stays 16:10 — same as the default. */
+@media (max-width: 767px) {
+  .case-cover--landscape .case-cover-media {
+    aspect-ratio: 1 / 1;
   }
 }
 
@@ -1860,6 +1894,15 @@ body.is-menu-animating .menu-label {
   background: var(--cover, var(--surface));
   border-radius: 8px;
   object-fit: cover;
+}
+
+/* Modifier for figures that hold portrait media (e.g. a phone-
+   screen UI demo, or any 4:5 image). Locks the figure to 4:5 at
+   every breakpoint — paired with a portrait source asset, the
+   media renders in full with no crop and no letterbox. Apply to
+   ALL siblings in a gallery row so heights stay matched. */
+.case-image--portrait .case-image-media {
+  aspect-ratio: 4 / 5;
 }
 
 /* Closing wide image: full-bleed edge-to-edge, mirroring the hero
